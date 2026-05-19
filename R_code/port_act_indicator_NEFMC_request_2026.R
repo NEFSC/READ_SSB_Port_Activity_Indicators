@@ -68,7 +68,7 @@ NE_dat$com_permits <- as.numeric(NE_dat$com_permits)
 NE_dat$com_permits <- as.numeric(NE_dat$com_permits)
 
 
-
+#stoped here#
 
 ##### inflation #####
 
