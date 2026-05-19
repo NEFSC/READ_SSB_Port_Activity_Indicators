@@ -5,8 +5,8 @@
 *.Rdata
 *.Rds
 .Ruserdata
-*credentials*
-*Credentials*
+credentials
+Credentials
 *.log
 *.html
 library.bib
@@ -16,3 +16,5 @@ library.bib
 *.aux
 *.out
 *.dta
+*.xls
+*.csv

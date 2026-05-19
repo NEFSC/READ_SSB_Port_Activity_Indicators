@@ -1,3 +1,4 @@
+This repository is for the development of the port activity indicators originally cast within the CSVI platform.
 # Project Template
 
 A small repository that will help you set up an organized project. There is also a tiny bit of sample code about how to get data off the NEFSC oracle servers.  
