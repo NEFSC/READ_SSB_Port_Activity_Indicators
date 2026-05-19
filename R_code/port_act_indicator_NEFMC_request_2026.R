@@ -1,5 +1,6 @@
 
 #### PORT ACTIVITY COMMERCIAL FISHING INDICATOR ####
+#this code is for the NEFMC request to inform their risk policy with our indicators####
 
 
 #### PACKAGES ####
@@ -16,7 +17,7 @@ library(ggrepel)
 
 
 #### set working directory ####
-setwd("C:/Users/robert.murphy/Documents/Fishing_Social_Indicators_2026/Fishing_Social_Indicators/data_folder/internal")
+setwd("C:/Users/robert.murphy/Documents/Fishing_Social_Indicators_2026/READ_SSB_Port_Activity_Indicators/data_folder/internal")
 
 
 #### DATA WRANGLING ####
