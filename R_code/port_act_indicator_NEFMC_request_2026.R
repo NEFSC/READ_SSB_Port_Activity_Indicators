@@ -65,10 +65,8 @@ NE_dat$totalvl <- as.numeric(NE_dat$totalvl)
 NE_dat$totallbs <- as.numeric(NE_dat$totallbs)
 NE_dat$totaldealers <- as.numeric(NE_dat$totaldealers)
 NE_dat$com_permits <- as.numeric(NE_dat$com_permits)
-NE_dat$com_permits <- as.numeric(NE_dat$com_permits)
 
 
-#stoped here#
 
 ##### inflation #####
 
@@ -156,18 +154,22 @@ NEdup<-as.data.frame(duplicated(NE_merged[,1:2]))
 #normalize data according to min-max methods
 #make year factor to prevent it from being included in the normalization process
 NE_merged$YEAR<-as.character(NE_merged$YEAR)
+NE_dat$YEAR<-as.character(NE_dat$YEAR)
 
 #0-1 range scale
 NE_process <- preProcess(as.data.frame(NE_merged), rangeBounds = c(0,1), method=c("range"))
 NE_normalized <- predict(NE_process, as.data.frame(NE_merged))
 
-#calculate averagestete
 
-#first need to insert 0's for NA so those count as data
-#this comes into play when I pull in processors data
-#NE_normalized[is.na(NE_normalized)] <- 0
+#calculate average
 
 NE_normalized$fishing_mean_score <-rowMeans(NE_normalized[,c("totallbs","totalvl.y","totaldealers","com_permits")], na.rm=FALSE)
+
+#do it without adjusting inflation
+
+NE_normalized$fishing_mean_score_no_inf <-rowMeans(NE_normalized[,c("totallbs","totalvl.x","totaldealers","com_permits")], na.rm=FALSE)
+
+
 
 #find top communities last year
 
@@ -176,15 +178,18 @@ NE_normalized_2024<- NE_normalized[(NE_normalized$YEAR==2024), ]
 
 #take top 10 ports
 top_NE<-slice_max(NE_normalized_2024, fishing_mean_score, n = 10, with_ties = TRUE)
+top_NE_no_inf<-slice_max(NE_normalized_2024, fishing_mean_score_no_inf, n = 10, with_ties = TRUE)
 
 #make into list
 top_NE_list <- as.list(top_NE$place_id)
+top_NE_list_no_inf <- as.list(top_NE_no_inf$place_id)
 
 #select those port ids in normalized, full dataframe
 NE_normalized_top <- NE_normalized %>%
   filter(place_id %in% top_NE_list)
 
-
+NE_normalized_top_no_inf <- NE_normalized %>%
+  filter(place_id %in% top_NE_list_no_inf )
 
 
 
@@ -198,18 +203,13 @@ write.csv(NE_normalized_soe,"NE_normalized_soe.csv", row.names = FALSE)
 NE_normalized_top_soe <-NE_normalized_top[c("PORT_NAME","STATE_ABB","place_id","fishing_mean_score", "YEAR")]
 write.csv(NE_normalized_top_soe,"NE_normalized_top_soe.csv", row.names = FALSE)
 
-MA_normalized_soe <-MA_normalized[c("PORT_NAME","STATE_ABB","place_id","fishing_mean_score", "YEAR")]
-write.csv(MA_normalized_soe,"MA_normalized_soe.csv", row.names = FALSE)
-
-MA_normalized_top_soe <-MA_normalized_top[c("PORT_NAME","STATE_ABB","place_id","fishing_mean_score", "YEAR")]
-write.csv(MA_normalized_top_soe,"MA_normalized_top_soe.csv", row.names = FALSE)
-
+NE_normalized_top_soe_no_inf <-NE_normalized_top_no_inf[c("PORT_NAME","STATE_ABB","place_id","fishing_mean_score_no_inf", "YEAR")]
 
 
 #### PLOT - TOP ####
 
 NE_normalized_top$YEAR <- as.numeric(NE_normalized_top$YEAR)
-MA_normalized_top$YEAR <- as.numeric(MA_normalized_top$YEAR)
+NE_normalized_top_no_inf $YEAR <- as.numeric(NE_normalized_top_no_inf $YEAR)
 
 #### PLOT COMBINED ####
 
@@ -240,6 +240,27 @@ NE_normalized_top %>%
                    na.rm = TRUE, max.overlaps = Inf)
 
 dev.off()
+
+NE_normalized_top_no_inf %>%
+  mutate(label = if_else(YEAR == max(YEAR), as.character(place_id), NA_character_)) %>%
+  ggplot(aes(x=YEAR, y=fishing_mean_score_no_inf, color=place_id)) + 
+  geom_point(size=3, alpha = 0.9)+
+  geom_path(linewidth=0.2)+
+  ylab("Port Commercial Fishing Activity Indicator score _no_inf")+
+  xlab("Year")+
+  theme_bw()+
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_line(color = "#8ccde3",
+                                        size = 0.2,
+                                        linetype = 2))+
+  scale_y_continuous(limits = c(0, 1)) +
+  scale_x_continuous(expand = expansion(mult = c(0.1, .6)),
+                     breaks = c(2007, 2010, 2015, 2020,2024))+
+  scale_alpha_discrete(range = c(0.15, 0.9)) + 
+  scale_color_brewer(palette = "Paired")+ theme(legend.position = "none")+
+  geom_label_repel(aes(label = label),hjust=0,
+                   nudge_x = 1, xlim=c(2025,2035),
+                   na.rm = TRUE, max.overlaps = Inf)
 
 
 #MA
