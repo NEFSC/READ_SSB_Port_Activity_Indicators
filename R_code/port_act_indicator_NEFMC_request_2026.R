@@ -67,6 +67,11 @@ NE_dat$totaldealers <- as.numeric(NE_dat$totaldealers)
 NE_dat$com_permits <- as.numeric(NE_dat$com_permits)
 
 
+#add new column for proportion of lobster landings
+NE_dat$lobster_prop<- (NE_dat$lobster_totallbs/NE_dat$totallbs)
+
+
+
 
 ##### inflation #####
 
@@ -124,17 +129,19 @@ NE_normalized_2024<- NE_normalized[(NE_normalized$YEAR==2024), ]
 
 
 #make plot with indicator score vs lobster landings
+tiff("NE_top_ports_lobsters.tiff", units="in", width=11, height=7, res=300)
+
 NE_normalized_2024 %>%
-  ggplot(aes(x=fishing_mean_score, y=lobster_totallbs)) + 
+  ggplot(aes(x=fishing_mean_score, y=lobster_prop)) + 
   geom_point(size=3, alpha = 0.9)+
-  ylab("lobster landings")+
+  ylab("lobster proportion of landings")+
   xlab("Port Commercial Fishing Activity Indicator score")+
   theme_bw()+
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_line(color = "#8ccde3",
                                         size = 0.2,
                                         linetype = 2))+
-  geom_label_repel(aes(label = ifelse(fishing_mean_score>0.1,as.character(place_id),ifelse(lobster_totallbs>2000000,as.character(place_id),''))),
+  geom_label_repel(aes(label = ifelse(fishing_mean_score>0.04,as.character(place_id),'')),
                    size=2,
                    force=2.5,
                    box.padding   = 0.5, 
@@ -146,7 +153,7 @@ NE_normalized_2024 %>%
                    fill = alpha(c("white"),0.1))
  
 
-
+dev.off()
 
 #take top 10 ports
 top_NE<-slice_max(NE_normalized_2024, fishing_mean_score, n = 10, with_ties = TRUE)
