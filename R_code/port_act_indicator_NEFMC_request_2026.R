@@ -10,7 +10,8 @@ library(ggplot2)
 library(dplyr)
 library(tidyr)
 library(ggrepel)
-
+library(pals)
+library(wesanderson)
 
 
 
@@ -165,11 +166,70 @@ NE_normalized_2024$top<-ifelse(NE_normalized_2024$fishing_mean_score>0.0484 & NE
 NEFMC_ports <- NE_normalized_2024$place_id[NE_normalized_2024$top == "top"]
 
 
-#make ne df of full years base on NEFMC_ports list
+#make new df of full years base on NEFMC_ports list
 NEFMC_ports_dat <- NE_normalized[NE_normalized$place_id %in% NEFMC_ports, ]
 
 
+#make shareable dataframe with no confidential stuff
+NEFMC_ports_share_dat <- NEFMC_ports_dat [, c("PORT_NAME", "STATE_ABB", "place_id", "YEAR", "fishing_mean_score")]
 
+
+
+
+
+#plot it
+NEFMC_ports_share_dat$YEAR <- as.numeric(NEFMC_ports_share_dat$YEAR)
+
+
+tiff("NEFMC_port_scores.tiff", units="in", width=9, height=7, res=300)
+
+NEFMC_ports_share_dat  %>%
+  mutate(label = if_else(YEAR == max(YEAR) & fishing_mean_score >0.1, as.character(place_id), NA_character_)) %>%
+  ggplot(aes(x=YEAR, y=fishing_mean_score, color=place_id)) + 
+  geom_point(size=3, alpha = 0.9)+
+  geom_path(linewidth=0.2)+
+  ylab("Port Commercial Fishing Activity Indicator score")+
+  xlab("Year")+
+  theme_bw()+
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_line(color = "#8ccde3",
+                                        size = 0.2,
+                                        linetype = 2))+
+  scale_y_continuous(limits = c(0, 1)) +
+  scale_x_continuous(expand = expansion(mult = c(0.1, .6)),
+                     limits= c(2015, NA), breaks = c(2016,2020,2024))+
+  theme(legend.position = "none")+
+  geom_label_repel(aes(label = label),hjust=0,
+                   nudge_x = 1, xlim=c(2025,2035),
+                   na.rm = TRUE, max.overlaps = Inf)
+
+
+dev.off()
+
+
+
+#facet
+tiff("NEFMC_port_scores_facet.tiff", units="in", width=5, height=7, res=300)
+
+NEFMC_ports_share_dat  %>%
+  ggplot(aes(x=YEAR, y=fishing_mean_score)) + 
+  geom_point(size=2, alpha = 0.9)+
+  geom_path(linewidth=0.2)+
+  ylab("Port Commercial Fishing Activity Indicator score")+
+  xlab("Year")+
+  theme_bw()+
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_line(color = "#8ccde3",
+                                        size = 0.2,
+                                        linetype = 2),
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        strip.text = element_text(size = 5))+
+  scale_x_continuous(limits= c(2015, 2024), breaks = c(2016,2020,2024))+
+  scale_y_continuous(limits = c(0, NA))+
+  theme(legend.position = "none")+
+  facet_wrap(~place_id, scales="free_y", ncol=3)
+  
+dev.off()
 
 
 
