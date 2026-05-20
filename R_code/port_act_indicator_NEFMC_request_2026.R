@@ -113,8 +113,8 @@ NE_dat$lobster_prop<- (NE_dat$lobster_totallbs/NE_dat$totallbs)
 NE_dat$YEAR<-as.character(NE_dat$YEAR)
 
 #0-1 range scale
-#norm everything except lobster column
-NE_process <- preProcess(as.data.frame(NE_dat[-8]), rangeBounds = c(0,1), method=c("range"))
+#norm everything except lobster columns
+NE_process <- preProcess(as.data.frame(NE_dat[c(-8,-10)]), rangeBounds = c(0,1), method=c("range"))
 NE_normalized <- predict(NE_process, as.data.frame(NE_dat))
 
 
@@ -155,7 +155,27 @@ NE_normalized_2024 %>%
 
 dev.off()
 
-#take top 10 ports
+
+
+#select ports for NEFMC analysis
+#Stonington CT is cutoff port with score = 0.04848843
+NE_normalized_2024$top<-ifelse(NE_normalized_2024$fishing_mean_score>0.0484 & NE_normalized_2024$lobster_prop<0.5,'top','not')
+
+#make list of top ports
+NEFMC_ports <- NE_normalized_2024$place_id[NE_normalized_2024$top == "top"]
+
+
+#make ne df of full years base on NEFMC_ports list
+NEFMC_ports_dat <- NE_normalized[NE_normalized$place_id %in% NEFMC_ports, ]
+
+
+
+
+
+
+###old stuff
+
+
 top_NE<-slice_max(NE_normalized_2024, fishing_mean_score, n = 10, with_ties = TRUE)
 top_NE_no_inf<-slice_max(NE_normalized_2024, fishing_mean_score_no_inf, n = 10, with_ties = TRUE)
 
