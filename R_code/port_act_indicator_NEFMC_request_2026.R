@@ -70,111 +70,73 @@ NE_dat$com_permits <- as.numeric(NE_dat$com_permits)
 
 ##### inflation #####
 
+#im saving some of this script as a reference but ill be changing my inflation adjusments to match quinn bernier
+
 #take just columns that need normalizing for inflation
-NE_dat_inf <- NE_dat[, c("YEAR", "place_id", "totalvl")]
+#NE_dat_inf <- NE_dat[, c("YEAR", "place_id", "totalvl")]
 
 # Split data by YEAR so I can adjust separately for each year of data
-NE_dat_split <- split(NE_dat_inf, NE_dat_inf$YEAR)
-cat("Data split into", length(NE_dat_split), "dataframes.\n")
+#NE_dat_split <- split(NE_dat_inf, NE_dat_inf$YEAR)
+#cat("Data split into", length(NE_dat_split), "dataframes.\n")
 
 
 #0-1 range scale
-process07 <- preProcess(as.data.frame(NE_dat_split[[1]]), rangeBounds = c(0,1), method=c("range"))
-dat_norm07 <- predict(process07, as.data.frame(NE_dat_split[[1]]))
-
-process08 <- preProcess(as.data.frame(NE_dat_split[[2]]), rangeBounds = c(0,1), method=c("range"))
-dat_norm08 <- predict(process08, as.data.frame(NE_dat_split[[2]]))
-
-process09 <- preProcess(as.data.frame(NE_dat_split[[3]]), rangeBounds = c(0,1), method=c("range"))
-dat_norm09 <- predict(process09, as.data.frame(NE_dat_split[[3]]))
-
-process10 <- preProcess(as.data.frame(NE_dat_split[[4]]), rangeBounds = c(0,1), method=c("range"))
-dat_norm10 <- predict(process10, as.data.frame(NE_dat_split[[4]]))
-
-process11 <- preProcess(as.data.frame(NE_dat_split[[5]]), rangeBounds = c(0,1), method=c("range"))
-dat_norm11 <- predict(process11, as.data.frame(NE_dat_split[[5]]))
-
-process12 <- preProcess(as.data.frame(NE_dat_split[[6]]), rangeBounds = c(0,1), method=c("range"))
-dat_norm12 <- predict(process12, as.data.frame(NE_dat_split[[6]]))
-
-process13 <- preProcess(as.data.frame(NE_dat_split[[7]]), rangeBounds = c(0,1), method=c("range"))
-dat_norm13 <- predict(process13, as.data.frame(NE_dat_split[[7]]))
-
-process14 <- preProcess(as.data.frame(NE_dat_split[[8]]), rangeBounds = c(0,1), method=c("range"))
-dat_norm14 <- predict(process14, as.data.frame(NE_dat_split[[8]]))
-
-process15 <- preProcess(as.data.frame(NE_dat_split[[9]]), rangeBounds = c(0,1), method=c("range"))
-dat_norm15 <- predict(process15, as.data.frame(NE_dat_split[[9]]))
-
-process16 <- preProcess(as.data.frame(NE_dat_split[[10]]), rangeBounds = c(0,1), method=c("range"))
-dat_norm16 <- predict(process16, as.data.frame(NE_dat_split[[10]]))
-
-process17 <- preProcess(as.data.frame(NE_dat_split[[11]]), rangeBounds = c(0,1), method=c("range"))
-dat_norm17 <- predict(process17, as.data.frame(NE_dat_split[[11]]))
-
-process18 <- preProcess(as.data.frame(NE_dat_split[[12]]), rangeBounds = c(0,1), method=c("range"))
-dat_norm18 <- predict(process18, as.data.frame(NE_dat_split[[12]]))
-
-process19 <- preProcess(as.data.frame(NE_dat_split[[13]]), rangeBounds = c(0,1), method=c("range"))
-dat_norm19 <- predict(process19, as.data.frame(NE_dat_split[[13]]))
-
-process20 <- preProcess(as.data.frame(NE_dat_split[[14]]), rangeBounds = c(0,1), method=c("range"))
-dat_norm20 <- predict(process20, as.data.frame(NE_dat_split[[14]]))
-
-process21 <- preProcess(as.data.frame(NE_dat_split[[15]]), rangeBounds = c(0,1), method=c("range"))
-dat_norm21 <- predict(process21, as.data.frame(NE_dat_split[[15]]))
-
-process22 <- preProcess(as.data.frame(NE_dat_split[[16]]), rangeBounds = c(0,1), method=c("range"))
-dat_norm22 <- predict(process22, as.data.frame(NE_dat_split[[16]]))
-
-process23 <- preProcess(as.data.frame(NE_dat_split[[17]]), rangeBounds = c(0,1), method=c("range"))
-dat_norm23 <- predict(process23, as.data.frame(NE_dat_split[[17]]))
-
-process24 <- preProcess(as.data.frame(NE_dat_split[[18]]), rangeBounds = c(0,1), method=c("range"))
-dat_norm24 <- predict(process24, as.data.frame(NE_dat_split[[18]]))
+#process07 <- preProcess(as.data.frame(NE_dat_split[[1]]), rangeBounds = c(0,1), method=c("range"))
+#dat_norm07 <- predict(process07, as.data.frame(NE_dat_split[[1]]))
 
 
 
 # Bind the normalized dataframes back together ---
-NE_dat_inf_adj <- rbind(dat_norm07, dat_norm08, dat_norm09,dat_norm10,dat_norm11,dat_norm12,dat_norm13,
-                        dat_norm14,dat_norm15,dat_norm16,dat_norm17,dat_norm18,dat_norm19,dat_norm20,
-                        dat_norm21,dat_norm22,dat_norm23, dat_norm24)
+#NE_dat_inf_adj <- rbind(dat_norm07, dat_norm08, dat_norm09,dat_norm10,dat_norm11,dat_norm12,dat_norm13,
+                  #      dat_norm14,dat_norm15,dat_norm16,dat_norm17,dat_norm18,dat_norm19,dat_norm20,
+                   #     dat_norm21,dat_norm22,dat_norm23, dat_norm24)
 
 
 
 #make new dataframe with these new normalized dollar columns
-NE_merged<-merge(NE_dat, NE_dat_inf_adj, by=c("YEAR","place_id"))
+#NE_merged<-merge(NE_dat, NE_dat_inf_adj, by=c("YEAR","place_id"))
 
 #checking whether there are any duplicates and there are not
-NEdup<-as.data.frame(duplicated(NE_merged[,1:2]))
+#NEdup<-as.data.frame(duplicated(NE_merged[,1:2]))
 
 
 ##### normalize ####
 
 #normalize data according to min-max methods
 #make year factor to prevent it from being included in the normalization process
-NE_merged$YEAR<-as.character(NE_merged$YEAR)
+#NE_merged$YEAR<-as.character(NE_merged$YEAR)
 NE_dat$YEAR<-as.character(NE_dat$YEAR)
 
 #0-1 range scale
-NE_process <- preProcess(as.data.frame(NE_merged), rangeBounds = c(0,1), method=c("range"))
-NE_normalized <- predict(NE_process, as.data.frame(NE_merged))
+#norm everything except lobster column
+NE_process <- preProcess(as.data.frame(NE_dat[-8]), rangeBounds = c(0,1), method=c("range"))
+NE_normalized <- predict(NE_process, as.data.frame(NE_dat))
 
 
 #calculate average
-
-NE_normalized$fishing_mean_score <-rowMeans(NE_normalized[,c("totallbs","totalvl.y","totaldealers","com_permits")], na.rm=FALSE)
-
-#do it without adjusting inflation
-
-NE_normalized$fishing_mean_score_no_inf <-rowMeans(NE_normalized[,c("totallbs","totalvl.x","totaldealers","com_permits")], na.rm=FALSE)
-
+NE_normalized$fishing_mean_score <-rowMeans(NE_normalized[,c("totallbs","totalvl","totaldealers","com_permits")], na.rm=FALSE)
 
 
 #find top communities last year
 
 #first, make df of 2024 only
 NE_normalized_2024<- NE_normalized[(NE_normalized$YEAR==2024), ]
+
+
+#make plot with indicator score vs lobster landings
+NE_normalized_2024 %>%
+  ggplot(aes(x=fishing_mean_score, y=lobster_totallbs)) + 
+  geom_point(size=3, alpha = 0.9)+
+  ylab("lobster landings")+
+  xlab("Port Commercial Fishing Activity Indicator score")+
+  theme_bw()+
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_line(color = "#8ccde3",
+                                        size = 0.2,
+                                        linetype = 2))
+ 
+
+
 
 #take top 10 ports
 top_NE<-slice_max(NE_normalized_2024, fishing_mean_score, n = 10, with_ties = TRUE)
