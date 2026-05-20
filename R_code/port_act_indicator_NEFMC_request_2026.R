@@ -133,7 +133,17 @@ NE_normalized_2024 %>%
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_line(color = "#8ccde3",
                                         size = 0.2,
-                                        linetype = 2))
+                                        linetype = 2))+
+  geom_label_repel(aes(label = ifelse(fishing_mean_score>0.1,as.character(place_id),ifelse(lobster_totallbs>2000000,as.character(place_id),''))),
+                   size=2,
+                   force=2.5,
+                   box.padding   = 0.5, 
+                   point.padding = 0,
+                   segment.color = 'grey50',
+                   min.segment.length = 0.01,
+                   max.overlaps=Inf,
+                   label.size = NA,
+                   fill = alpha(c("white"),0.1))
  
 
 
