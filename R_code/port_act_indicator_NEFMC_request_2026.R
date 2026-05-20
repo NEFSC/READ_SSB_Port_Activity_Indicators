@@ -181,7 +181,7 @@ NEFMC_ports_share_dat <- NEFMC_ports_dat [, c("PORT_NAME", "STATE_ABB", "place_i
 NEFMC_ports_share_dat$YEAR <- as.numeric(NEFMC_ports_share_dat$YEAR)
 
 
-tiff("NEFMC_port_scores.tiff", units="in", width=9, height=7, res=300)
+tiff("NEFMC_port_scores.tiff", units="in", width=9, height=7, res=200)
 
 NEFMC_ports_share_dat  %>%
   mutate(label = if_else(YEAR == max(YEAR) & fishing_mean_score >0.1, as.character(place_id), NA_character_)) %>%
@@ -209,7 +209,12 @@ dev.off()
 
 
 #facet
-tiff("NEFMC_port_scores_facet.tiff", units="in", width=5, height=7, res=300)
+place_means <- NEFMC_ports_share_dat %>%
+  group_by(place_id) %>%
+  summarize(overall_mean = mean(fishing_mean_score, na.rm = TRUE))
+
+
+tiff("NEFMC_port_scores_facet.tiff", units="in", width=5, height=7, res=200)
 
 NEFMC_ports_share_dat  %>%
   ggplot(aes(x=YEAR, y=fishing_mean_score)) + 
@@ -227,7 +232,13 @@ NEFMC_ports_share_dat  %>%
   scale_x_continuous(limits= c(2015, 2024), breaks = c(2016,2020,2024))+
   scale_y_continuous(limits = c(0, NA))+
   theme(legend.position = "none")+
-  facet_wrap(~place_id, scales="free_y", ncol=3)
+  facet_wrap(~place_id, scales="free_y", ncol=3)+geom_hline(
+    data = place_means, 
+    aes(yintercept = overall_mean), 
+    color = "red", 
+    linetype = "dotted", 
+    linewidth = 0.8
+  )
   
 dev.off()
 
