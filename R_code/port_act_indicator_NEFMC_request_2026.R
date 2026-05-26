@@ -38,7 +38,6 @@ dat_clean<-dat_clean[!grepl("DISTRICT", dat_clean$PORT_NAME),]
 dat_clean<-dat_clean[!grepl("\\(COUNTY\\)", dat_clean$PORT_NAME),]
 
 
-
 #### NEW ENGLAND ####
 
 #just keep NE states
@@ -75,6 +74,36 @@ NE_dat$lobster_prop<- (NE_dat$lobster_totallbs/NE_dat$totallbs)
 
 
 ##### inflation #####
+
+library(fredr)
+library(lubridate)
+
+# Set your unique Federal Reserve API developer key
+ST_API <- readLines("ST_API.txt")
+
+
+
+fredr_set_key(ST_API) 
+
+# Fetch annual "Gross Domestic Product: Implicit Price Deflator" (Series: A191RD3A086NBEA)
+raw_gdp_data <- fredr(
+  series_id = "A191RD3A086NBEA",
+  observation_start = as.Date("2007-01-01"),
+  observation_end = as.Date("2024-12-31")
+)
+
+# Isolate the index column to clean years
+gdp_deflator_lookup <- raw_gdp_data %>%
+  mutate(year = year(date)) %>%
+  select(year, deflator = value)
+
+# Capture target base year metric
+deflator_2024 <- gdp_deflator_lookup$deflator[gdp_deflator_lookup$year == 2024]
+
+
+
+
+
 
 #im saving some of this script as a reference but ill be changing my inflation adjusments to match quinn bernier
 
