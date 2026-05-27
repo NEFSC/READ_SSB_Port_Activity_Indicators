@@ -141,7 +141,7 @@ NE_normalized_2024<- NE_normalized[(NE_normalized$year==2024), ]
 tiff("NE_top_ports_lobsters_inf.tiff", units="in", width=11, height=7, res=300)
 
 NE_normalized_2024 %>%
-  ggplot(aes(x=fishing_mean_score, y=lobster_prop)) + 
+  ggplot(aes(x=port_ind_score, y=lobster_prop)) + 
   geom_point(size=3, alpha = 0.9)+
   ylab("lobster proportion of landings")+
   xlab("Port Commercial Fishing Activity Indicator score")+
@@ -150,7 +150,7 @@ NE_normalized_2024 %>%
         panel.grid.minor = element_line(color = "#8ccde3",
                                         size = 0.2,
                                         linetype = 2))+
-  geom_label_repel(aes(label = ifelse(fishing_mean_score>0.04,as.character(place_id),'')),
+  geom_label_repel(aes(label = ifelse(port_ind_score>0.04,as.character(place_id),'')),
                    size=2,
                    force=2.5,
                    box.padding   = 0.5, 
@@ -168,7 +168,7 @@ dev.off()
 
 #select ports for NEFMC analysis
 #I'm using the csv below to determine the top ports based on not having more than 50% lobster landings and being amonst the top indicator scores
-write.csv(NE_normalized_2024,"NE_normalized_2024.csv", row.names = FALSE)
+#write.csv(NE_normalized_2024,"NE_normalized_2024.csv", row.names = FALSE)
 
 
 #Stonington CT is cutoff port with score = 0.048255759
