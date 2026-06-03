@@ -193,7 +193,7 @@ NEFMC_ports_share_dat <- NEFMC_ports_dat [, c("PORT_NAME", "STATE_ABB", "place_i
 NEFMC_ports_share_dat$year <- as.numeric(NEFMC_ports_share_dat$year)
 
 
-tiff("NEFMC_port_scores_inf_full.tiff", units="in", width=9, height=7, res=200)
+#tiff("NEFMC_port_scores_inf_full.tiff", units="in", width=9, height=7, res=200)
 
 NEFMC_ports_share_dat  %>%
   mutate(label = if_else(year == max(year) & port_ind_score >0.1, as.character(place_id), NA_character_)) %>%
@@ -220,6 +220,41 @@ NEFMC_ports_share_dat  %>%
 
 
 
+
+#tiff("NEFMC_port_scores_facet_full.tiff", units="in", width=5, height=7, res=200)
+
+NEFMC_ports_share_dat  %>%
+  ggplot(aes(x=year, y=port_ind_score)) + 
+  geom_point(size=2, alpha = 0.9)+
+  geom_path(linewidth=0.2)+
+  ylab("Port Commercial Fishing Activity Indicator score")+
+  xlab("Year")+
+  theme_bw()+
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_line(color = "#8ccde3",
+                                        size = 0.2,
+                                        linetype = 2),
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        strip.text = element_text(size = 5))+
+  scale_x_continuous(limits= c(2007, 2024), breaks = c(2008,2012,2016,2020,2024))+
+  scale_y_continuous(limits = c(0, NA))+
+  theme(legend.position = "none")+
+  facet_wrap(~place_id, scales="free_y", ncol=3)+geom_hline(
+    data = place_means, 
+    aes(yintercept = overall_mean), 
+    color = "red", 
+    linetype = "dotted", 
+    linewidth = 0.8
+  )
+  
+dev.off()
+
+
+
+
+#new plot with changing background colors
+
+
 #facet
 place_means <- NEFMC_ports_share_dat %>%
   group_by(place_id) %>%
@@ -230,19 +265,42 @@ facet_thresholds <- NEFMC_ports_share_dat %>%
   group_by(place_id) %>%
   summarize(
     facet_mean = mean(port_ind_score, na.rm = TRUE),
-    upper_20 = facet_mean * 1.20,
-    lower_20 = facet_mean * 0.80
+    upper_10 = facet_mean * 1.10,
+    lower_10 = facet_mean * 0.90
   )
 
-tiff("NEFMC_port_scores_facet_full.tiff", units="in", width=5, height=7, res=200)
+# 3. Filter for year 2024 data and determine the background color string
+facet_backgrounds <- NEFMC_ports_share_dat %>%
+  filter(year == 2024) %>%
+  left_join(facet_thresholds, by = "place_id") %>%
+  mutate(
+    bg_color = case_when(
+      port_ind_score > upper_10 ~ "green",  # Soft green if above upper_10
+      port_ind_score < lower_10 ~ "red",  # Soft red if below lower_10
+      TRUE                      ~ "white"   # White if between upper and lower
+    )
+  ) %>%
+  select(place_id, bg_color)
+
+
+
+
+tiff("NEFMC_port_scores_facet_full_10per.tiff", units="in", width=5, height=7, res=200)
 
 NEFMC_ports_share_dat  %>%
   ggplot(aes(x=year, y=port_ind_score)) + 
+  geom_rect(
+    data = facet_backgrounds,
+    aes(xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf, fill = bg_color),
+    inherit.aes = FALSE,
+    alpha = 0.2 
+  ) +
   geom_point(size=2, alpha = 0.9)+
   geom_path(linewidth=0.2)+
   ylab("Port Commercial Fishing Activity Indicator score")+
   xlab("Year")+
   theme_bw()+
+  scale_fill_identity() + 
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_line(color = "#8ccde3",
                                         size = 0.2,
@@ -258,46 +316,21 @@ NEFMC_ports_share_dat  %>%
     color = "red", 
     linetype = "dotted", 
     linewidth = 0.8
-  )
-  
-dev.off()
-
-
-tiff("NEFMC_port_scores_facet_full_20per.tiff", units="in", width=5, height=7, res=200)
-
-NEFMC_ports_share_dat  %>%
-  ggplot(aes(x=year, y=port_ind_score)) + 
-  geom_point(size=2, alpha = 0.9)+
-  geom_path(linewidth=0.2)+
-  ylab("Port Commercial Fishing Activity Indicator score")+
-  xlab("Year")+
-  theme_bw()+
-  theme(panel.grid.major = element_blank(),
-        panel.grid.minor = element_line(color = "#8ccde3",
-                                        size = 0.2,
-                                        linetype = 2),
-        axis.text.x = element_text(angle = 45, hjust = 1),
-        strip.text = element_text(size = 5))+
-  scale_x_continuous(limits= c(2007, 2024), breaks = c(2008,2012,2016,2020,2024))+
-  scale_y_continuous(limits = c(0, NA))+
-  theme(legend.position = "none")+
-  facet_wrap(~place_id, scales="free_y", ncol=3)+geom_hline(
-    data = place_means, 
-    aes(yintercept = overall_mean), 
-    color = "red", 
-    linetype = "dotted", 
-    linewidth = 0.8
-  )+ # Upper 20% line
+  )+ # Upper 10% line
   geom_hline(
     data = facet_thresholds, 
-    aes(yintercept = upper_20), 
-    color = "blue", linetype = "dashed", linewidth = 0.8
+    aes(yintercept = upper_10), 
+    color = "blue", linetype = "dashed", linewidth = 0.8, alpha=0.5,
   ) +
   
   # Lower 20% line
   geom_hline(
     data = facet_thresholds, 
-    aes(yintercept = lower_20), 
-    color = "orange", linetype = "dashed", linewidth = 0.8
+    aes(yintercept = lower_10), 
+    color = "blue", linetype = "dashed", linewidth = 0.8, alpha=0.5,
   )
+
+
+
 dev.off()
+
