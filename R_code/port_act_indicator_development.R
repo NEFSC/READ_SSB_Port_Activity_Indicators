@@ -49,11 +49,22 @@ NE_dat <- dat_clean[(dat_clean$STATE_ABB=='ME' |
                        dat_clean$STATE_ABB=='NH'), ]
 
 
-#make new columns representiong number of dealers landing in port and number of boat landing in port
+#make new columns representing number of dealers landing in port and number of boat landing in port
+NE_dat$total_dealers_land <- NE_dat$bluefish_dealers + NE_dat$butmacsq_dealers + NE_dat$dogfish_dealers + NE_dat$herring_dealers + 
+  NE_dat$lobster_dealers + NE_dat$lrgmesh_dealers + NE_dat$monkfish_dealers + NE_dat$quahog_dealers + NE_dat$redcrab_dealers + NE_dat$salmon_dealers + 
+  NE_dat$scallops_dealers + NE_dat$sfscpbsb_dealers + NE_dat$skates_dealers + NE_dat$smlmesh_dealers + NE_dat$surfclam_dealers + NE_dat$tilefish_dealers
+
+NE_dat$total_boats_land <- NE_dat$bluefish_boats + NE_dat$butmacsq_boats + NE_dat$dogfish_boats + NE_dat$herring_boats + 
+  NE_dat$lobster_boats + NE_dat$lrgmesh_boats + NE_dat$monkfish_boats + NE_dat$quahog_boats + NE_dat$redcrab_boats + NE_dat$salmon_boats + 
+  NE_dat$scallops_boats + NE_dat$sfscpbsb_boats + NE_dat$skates_boats + NE_dat$smlmesh_boats + NE_dat$surfclam_boats + NE_dat$tilefish_boats
+
 
 
 #subset just variables we care about for now, with lobster pounds for NEFMC port sorting
-NE_dat <-NE_dat[c("PORT_NAME","STATE_ABB", "totalvl","totallbs", "totaldealers", "com_permits", "CAL_YEAR","lobster_totallbs")]
+NE_dat <-NE_dat[c("PORT_NAME","STATE_ABB", 
+                  "totalvl","totallbs", "totaldealers", 
+                  "com_permits", "CAL_YEAR","lobster_totallbs",
+                  "total_dealers_land", "total_boats_land")]
 
 
 #rename fish year column 
@@ -125,12 +136,18 @@ NE_dat_inf$year<-as.character(NE_dat_inf$year)
 
 #0-1 range scale
 #norm everything except lobster columns
-NE_process <- preProcess(as.data.frame(NE_dat_inf[c(-8,-10)]), rangeBounds = c(0,1), method=c("range"))
+NE_process <- preProcess(as.data.frame(NE_dat_inf[c(-8,-12)]), rangeBounds = c(0,1), method=c("range"))
 NE_normalized <- predict(NE_process, as.data.frame(NE_dat_inf))
 
 
 #calculate average
-NE_normalized$port_ind_score <-rowMeans(NE_normalized[,c("totallbs","totalvl_inf","totaldealers","com_permits")], na.rm=FALSE)
+NE_normalized$port_ind_score <-rowMeans(NE_normalized[,c("totallbs","totalvl_inf","totaldealers","com_permits", )], na.rm=FALSE)
+
+#port_live
+NE_normalized$port_live_score <-rowMeans(NE_normalized[,c("totaldealers","com_permits")], na.rm=FALSE)
+
+#port_work
+NE_normalized$port_work_score <-rowMeans(NE_normalized[,c("totallbs","totalvl_inf","total_dealers_land","total_boats_land")], na.rm=FALSE)
 
 
 
@@ -145,16 +162,17 @@ NE_normalized_2024<- NE_normalized[(NE_normalized$year==2024), ]
 #tiff("NE_top_ports_lobsters_inf.tiff", units="in", width=11, height=7, res=300)
 
 NE_normalized_2024 %>%
-  ggplot(aes(x=port_ind_score, y=lobster_prop)) + 
+  ggplot(aes(x=port_live_score, y=port_work_score)) + 
   geom_point(size=3, alpha = 0.9)+
-  ylab("lobster proportion of landings")+
-  xlab("Port Commercial Fishing Activity Indicator score")+
+  ylab("Port Work")+
+  xlab("Port Live")+
   theme_bw()+
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_line(color = "#8ccde3",
                                         size = 0.2,
                                         linetype = 2))+
-  geom_label_repel(aes(label = ifelse(port_ind_score>0.04,as.character(place_id),'')),
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "red")+
+  geom_label_repel(aes(label = ifelse(port_live_score>0.15,as.character(place_id),'')),
                    size=2,
                    force=2.5,
                    box.padding   = 0.5, 
