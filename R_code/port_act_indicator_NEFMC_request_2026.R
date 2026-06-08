@@ -218,7 +218,10 @@ NEFMC_ports_share_dat  %>%
 
 #dev.off()
 
-
+#facet
+place_means <- NEFMC_ports_share_dat %>%
+  group_by(place_id) %>%
+  summarize(overall_mean = mean(port_ind_score, na.rm = TRUE))
 
 
 #tiff("NEFMC_port_scores_facet_full.tiff", units="in", width=5, height=7, res=200)
@@ -255,10 +258,7 @@ dev.off()
 #new plot with changing background colors
 
 
-#facet
-place_means <- NEFMC_ports_share_dat %>%
-  group_by(place_id) %>%
-  summarize(overall_mean = mean(port_ind_score, na.rm = TRUE))
+
 
 # Calculate the mean for each facet and generate thresholds
 facet_thresholds <- NEFMC_ports_share_dat %>%
