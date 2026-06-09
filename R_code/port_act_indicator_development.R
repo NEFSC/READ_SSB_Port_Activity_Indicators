@@ -162,7 +162,7 @@ NE_normalized$port_actors_score <-rowMeans(NE_normalized[,c("total_dealers_land"
 NE_normalized_2024<- NE_normalized[(NE_normalized$year==2024), ]
 
 
-#lets just take top 12 for plotting purposes
+
 
 NE_normalized_2024 %>%
   ggplot(aes(x=port_home_score, y=port_work_score)) + 
@@ -186,8 +186,6 @@ NE_normalized_2024 %>%
                    label.size = NA,
                    fill = alpha(c("white"),0.1))
 
-
-#dev.off()
 
 
 #make some histograms to explore data
@@ -229,37 +227,72 @@ NE_normalized_2024 %>%
 
 
 
-
-#select ports for NEFMC analysis
-#I'm using the csv below to determine the top ports based on not having more than 50% lobster landings and being amonst the top indicator scores
-#write.csv(NE_normalized_2024,"NE_normalized_2024.csv", row.names = FALSE)
+#### TOP PORTS ####
+#lets just take top 12 for plotting purposes
 
 
-#Stonington CT is cutoff port with score = 0.048255759
-NE_normalized_2024$top<-ifelse(NE_normalized_2024$port_ind_score>0.048 & NE_normalized_2024$lobster_prop<0.5,'top','not')
+#overall
+NE_normalized_2024$top_overall <- ifelse(
+  rank(-NE_normalized_2024$port_ind_score, ties.method = "min") <= 12, 
+  "top", 
+  "not"
+)
+
+#overall
+NE_normalized_2024$top_actors <- ifelse(
+  rank(-NE_normalized_2024$port_actors_score, ties.method = "min") <= 12, 
+  "top", 
+  "not"
+)
+
+#overall
+NE_normalized_2024$top_home <- ifelse(
+  rank(-NE_normalized_2024$port_home_score, ties.method = "min") <= 12, 
+  "top", 
+  "not"
+)
+
+#overall
+NE_normalized_2024$top_volume <- ifelse(
+  rank(-NE_normalized_2024$port_volume_score, ties.method = "min") <= 12, 
+  "top", 
+  "not"
+)
+
 
 #make list of top ports
-NEFMC_ports <- NE_normalized_2024$place_id[NE_normalized_2024$top == "top"]
+NE_ports_overall <- NE_normalized_2024$place_id[NE_normalized_2024$top_overall == "top"]
+NE_ports_actors <- NE_normalized_2024$place_id[NE_normalized_2024$top_actors == "top"]
+NE_ports_home <- NE_normalized_2024$place_id[NE_normalized_2024$top_home == "top"]
+NE_ports_volume<- NE_normalized_2024$place_id[NE_normalized_2024$top_volume == "top"]
 
 
-#make new df of full years based on NEFMC_ports list
-NEFMC_ports_dat <- NE_normalized[NE_normalized$place_id %in% NEFMC_ports, ]
+
+#make new df of full years based on top lists
+top_ports_overall_dat <- NE_normalized[NE_normalized$place_id %in% NE_ports_overall, ]
+top_ports_actors_dat <- NE_normalized[NE_normalized$place_id %in% NE_ports_actors, ]
+top_ports_home_dat <- NE_normalized[NE_normalized$place_id %in% NE_ports_home, ]
+top_ports_volume_dat <- NE_normalized[NE_normalized$place_id %in% NE_ports_volume, ]
 
 
-#make shareable dataframe with no confidential stuff
-NEFMC_ports_share_dat <- NEFMC_ports_dat [, c("PORT_NAME", "STATE_ABB", "place_id", "year", "port_ind_score")]
+
 
 
 
 
 
 #plot it
-NEFMC_ports_share_dat$year <- as.numeric(NEFMC_ports_share_dat$year)
+top_ports_overall_dat$year <- as.numeric(top_ports_overall_dat$year)
+top_ports_actors_dat$year <- as.numeric(top_ports_actors_dat$year)
+top_ports_home_dat$year <- as.numeric(top_ports_home_dat$year)
+top_ports_volume_dat$year <- as.numeric(top_ports_volume_dat$year)
 
 
-#tiff("NEFMC_port_scores_inf_full.tiff", units="in", width=9, height=7, res=200)
+#overall
+tiff("port_scores_temporal_overall.tiff", units="in", width=7, height=7, res=200)
 
-NEFMC_ports_share_dat  %>%
+
+top_ports_overall_dat  %>%
   mutate(label = if_else(year == max(year) & port_ind_score >0.1, as.character(place_id), NA_character_)) %>%
   ggplot(aes(x=year, y=port_ind_score, color=place_id)) + 
   geom_point(size=3, alpha = 0.9)+
@@ -279,18 +312,106 @@ NEFMC_ports_share_dat  %>%
                    nudge_x = 1, xlim=c(2025,2035),
                    na.rm = TRUE, max.overlaps = Inf)
 
+dev.off()
+
+
+
+
+#actors
+tiff("port_scores_temporal_actors.tiff", units="in", width=7, height=7, res=200)
+
+
+top_ports_actors_dat  %>%
+  mutate(label = if_else(year == max(year) & port_actors_score >0.15, as.character(place_id), NA_character_)) %>%
+  ggplot(aes(x=year, y=port_actors_score, color=place_id)) + 
+  geom_point(size=3, alpha = 0.9)+
+  geom_path(linewidth=0.2)+
+  ylab("ACTORS Indicator score")+
+  xlab("Year")+
+  theme_bw()+
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_line(color = "#8ccde3",
+                                        size = 0.2,
+                                        linetype = 2))+
+  scale_y_continuous(limits = c(0, 1)) +
+  scale_x_continuous(expand = expansion(mult = c(0.1, .6)),
+                     limits= c(NA, NA), breaks = c(2008,2012,2016,2020,2024))+
+  theme(legend.position = "none")+
+  geom_label_repel(aes(label = label),hjust=0,
+                   nudge_x = 1, xlim=c(2025,2035),
+                   na.rm = TRUE, max.overlaps = Inf)
+
+dev.off()
+
+
+
+#home
+tiff("port_scores_temporal_home.tiff", units="in", width=7, height=7, res=200)
+
+top_ports_home_dat  %>%
+  mutate(label = if_else(year == max(year) & port_home_score >0.15, as.character(place_id), NA_character_)) %>%
+  ggplot(aes(x=year, y=port_home_score, color=place_id)) + 
+  geom_point(size=3, alpha = 0.9)+
+  geom_path(linewidth=0.2)+
+  ylab("HOME Indicator score")+
+  xlab("Year")+
+  theme_bw()+
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_line(color = "#8ccde3",
+                                        size = 0.2,
+                                        linetype = 2))+
+  scale_y_continuous(limits = c(0, 1)) +
+  scale_x_continuous(expand = expansion(mult = c(0.1, .6)),
+                     limits= c(NA, NA), breaks = c(2008,2012,2016,2020,2024))+
+  theme(legend.position = "none")+
+  geom_label_repel(aes(label = label),hjust=0,
+                   nudge_x = 1, xlim=c(2025,2035),
+                   na.rm = TRUE, max.overlaps = Inf)
+
+dev.off()
+
+
+
+
+
+tiff("port_scores_temporal_volume.tiff", units="in", width=7, height=7, res=200)
+
+top_ports_volume_dat  %>%
+  mutate(label = if_else(year == max(year) & port_volume_score >0.05, as.character(place_id), NA_character_)) %>%
+  ggplot(aes(x=year, y=port_volume_score, color=place_id)) + 
+  geom_point(size=3, alpha = 0.9)+
+  geom_path(linewidth=0.2)+
+  ylab("VOLUME Indicator score")+
+  xlab("Year")+
+  theme_bw()+
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_line(color = "#8ccde3",
+                                        size = 0.2,
+                                        linetype = 2))+
+  scale_y_continuous(limits = c(0, 1)) +
+  scale_x_continuous(expand = expansion(mult = c(0.1, .6)),
+                     limits= c(NA, NA), breaks = c(2008,2012,2016,2020,2024))+
+  theme(legend.position = "none")+
+  geom_label_repel(aes(label = label),hjust=0,
+                   nudge_x = 1, xlim=c(2025,2035),
+                   na.rm = TRUE, max.overlaps = Inf)
+
+
+dev.off()
+
+
 
 #dev.off()
 
 #facet
-place_means <- NEFMC_ports_share_dat %>%
+place_means <- top_ports_dat %>%
   group_by(place_id) %>%
   summarize(overall_mean = mean(port_ind_score, na.rm = TRUE))
 
 
 #tiff("NEFMC_port_scores_facet_full.tiff", units="in", width=5, height=7, res=200)
 
-NEFMC_ports_share_dat  %>%
+top_ports_dat  %>%
   ggplot(aes(x=year, y=port_ind_score)) + 
   geom_point(size=2, alpha = 0.9)+
   geom_path(linewidth=0.2)+
@@ -314,11 +435,66 @@ NEFMC_ports_share_dat  %>%
     linewidth = 0.8
   )
 
+#dev.off()
+
+
+
+
+#make a plot with other sub-dimensions
+tiff("NE_scores_plot1.tiff", units="in", width=7, height=7, res=200)
+
+
+
+top_ports_dat  %>%
+  ggplot(aes(x=year)) + 
+  
+  geom_hline(
+    data = place_means, 
+    aes(yintercept = overall_mean), 
+    color = "red", 
+    linetype = "dotted", 
+    linewidth = 0.8
+  ) +
+  
+  #port_volume_score
+  geom_path(aes(y = port_volume_score, color = "Volume Score"), linewidth = 1, alpha = 0.5) + 
+  
+  #port_actors_score
+  geom_path(aes(y = port_actors_score , color = "Actors Score"), linewidth = 1, alpha = 0.5) +
+  
+  #port_home_score
+  geom_path(aes(y = port_home_score, color = "Home Score"), linewidth = 1, alpha = 0.5) +
+  
+  #overall score
+  geom_point(aes(y = port_ind_score, color = "Overall Indicator Score"),size=2, alpha = 0.9)+
+  geom_path(aes(y = port_ind_score, color = "Overall Indicator Score"),linewidth=0.2)+
+  
+  ylab("Port Commercial Fishing Activity Indicator score")+
+  xlab("Year")+
+  theme_bw()+
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_line(color = "#8ccde3",
+                                        size = 0.2,
+                                        linetype = 2),
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        strip.text = element_text(size = 5),
+        legend.position = "bottom")+
+  scale_x_continuous(limits= c(2007, 2024), breaks = c(2008,2012,2016,2020,2024))+
+  scale_y_continuous(limits = c(0, NA))+
+
+  # Define the legend title and exact color mapping
+  scale_color_manual(
+    name = "Score Type",
+    values = c(
+      "Volume Score" = "blue",
+      "Actors Score" = "green",
+      "Home Score" = "orange",
+      "Overall Indicator Score" = "black"))+
+  facet_wrap(~place_id, scales="free_y", ncol=3)
+
+
+
 dev.off()
-
-
-
-
 #new plot with changing background colors
 
 
