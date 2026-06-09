@@ -138,16 +138,22 @@ NE_process <- preProcess(as.data.frame(NE_dat_inf), rangeBounds = c(0,1), method
 NE_normalized <- predict(NE_process, as.data.frame(NE_dat_inf))
 
 
-#calculate average
-NE_normalized$port_ind_score <-rowMeans(NE_normalized[,c("totallbs","totalvl_inf","totaldealers","com_permits" )], na.rm=FALSE)
+#calculate average overall
+NE_normalized$port_ind_score <-rowMeans(NE_normalized[,c("totallbs","totalvl_inf","totaldealers","com_permits","total_dealers_land","total_boats_land" )], na.rm=FALSE)
 
-#port_live
-NE_normalized$port_live_score <-rowMeans(NE_normalized[,c("totaldealers","com_permits")], na.rm=FALSE)
+#port_home
+NE_normalized$port_home_score <-rowMeans(NE_normalized[,c("totaldealers","com_permits")], na.rm=FALSE)
 
-#port_work
+
+#port_work (volume and actors)
 NE_normalized$port_work_score <-rowMeans(NE_normalized[,c("totallbs","totalvl_inf","total_dealers_land","total_boats_land")], na.rm=FALSE)
 
 
+#port_volume
+NE_normalized$port_volume_score <-rowMeans(NE_normalized[,c("totallbs","totalvl_inf")], na.rm=FALSE)
+
+#port_actors
+NE_normalized$port_actors_score <-rowMeans(NE_normalized[,c("total_dealers_land","total_boats_land")], na.rm=FALSE)
 
 
 #find top communities last year
@@ -156,21 +162,20 @@ NE_normalized$port_work_score <-rowMeans(NE_normalized[,c("totallbs","totalvl_in
 NE_normalized_2024<- NE_normalized[(NE_normalized$year==2024), ]
 
 
-#make plot with indicator score vs lobster landings
-#tiff("NE_top_ports_lobsters_inf.tiff", units="in", width=11, height=7, res=300)
+#lets just take top 12 for plotting purposes
 
 NE_normalized_2024 %>%
-  ggplot(aes(x=port_live_score, y=port_work_score)) + 
+  ggplot(aes(x=port_home_score, y=port_work_score)) + 
   geom_point(size=3, alpha = 0.9)+
   ylab("Port Work")+
-  xlab("Port Live")+
+  xlab("Port Home")+
   theme_bw()+
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_line(color = "#8ccde3",
                                         linewidth = 0.2,
                                         linetype = 2))+
   geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "red")+
-  geom_label_repel(aes(label = ifelse(port_live_score>0.15,as.character(place_id),'')),
+  geom_label_repel(aes(label = ifelse(port_home_score>0.15,as.character(place_id),'')),
                    size=2,
                    force=2.5,
                    box.padding   = 0.5, 
@@ -183,6 +188,45 @@ NE_normalized_2024 %>%
 
 
 #dev.off()
+
+
+#make some histograms to explore data
+
+# Reshape data and plot
+NE_normalized %>%
+  pivot_longer(
+    cols = c(totallbs, totalvl_inf, totaldealers, com_permits,total_dealers_land,total_boats_land), # Specify the columns to plot
+    names_to = "variable", 
+    values_to = "value"
+  ) %>%
+  ggplot(aes(x = variable, y = value, fill = variable)) +
+   # Transparent violin shape
+  geom_jitter(alpha = 0.2, width = 0.1, color = "black") + # Transparent raw data points
+  geom_violin(alpha = 0.9, trim = FALSE) +
+  facet_wrap(~ variable, scales = "free") + # Panel view
+  theme_minimal() +
+  theme(legend.position = "none") # Removes redundant legend
+
+
+#lets try just one year
+NE_normalized_2024 %>%
+  pivot_longer(
+    cols = c(totallbs, totalvl_inf, totaldealers, com_permits,total_dealers_land,total_boats_land), # Specify the columns to plot
+    names_to = "variable", 
+    values_to = "value"
+  ) %>%
+  ggplot(aes(x = variable, y = value, fill = variable)) +
+  # Transparent violin shape
+  geom_jitter(alpha = 0.2, width = 0.1, color = "black") + # Transparent raw data points
+  geom_violin(alpha = 0.9, trim = FALSE) +
+  facet_wrap(~ variable, scales = "free") + # Panel view
+  theme_minimal() +
+  theme(legend.position = "none") # Removes redundant legend
+
+
+
+
+
 
 
 
@@ -354,3 +398,17 @@ NEFMC_ports_share_dat  %>%
 
 dev.off()
 
+
+
+#Try K-means clustering
+
+NE_dat_k <-NE_normalized_2024[c(
+  "totalvl_inf","totallbs", 
+  "totaldealers", 
+  "com_permits",
+  "total_dealers_land", "total_boats_land")]
+
+
+set.seed(123)
+km.out <- kmeans(NE_dat_k, centers = 3, nstart = 20)
+km.out
