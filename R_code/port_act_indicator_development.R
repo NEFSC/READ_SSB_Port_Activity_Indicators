@@ -61,9 +61,10 @@ NE_dat$total_boats_land <- NE_dat$bluefish_boats + NE_dat$butmacsq_boats + NE_da
 
 
 #subset just variables we care about for now, with lobster pounds for NEFMC port sorting
-NE_dat <-NE_dat[c("PORT_NAME","STATE_ABB", 
-                  "totalvl","totallbs", "totaldealers", 
-                  "com_permits", "CAL_YEAR","lobster_totallbs",
+NE_dat <-NE_dat[c("PORT_NAME","STATE_ABB", "CAL_YEAR",
+                  "totalvl","totallbs", 
+                  "totaldealers", 
+                  "com_permits",
                   "total_dealers_land", "total_boats_land")]
 
 
@@ -82,9 +83,6 @@ NE_dat$totallbs <- as.numeric(NE_dat$totallbs)
 NE_dat$totaldealers <- as.numeric(NE_dat$totaldealers)
 NE_dat$com_permits <- as.numeric(NE_dat$com_permits)
 
-
-#add new column for proportion of lobster landings
-NE_dat$lobster_prop<- (NE_dat$lobster_totallbs/NE_dat$totallbs)
 
 
 
@@ -123,7 +121,8 @@ deflators<-deflators %>%
 # Process adjustments with raw data
 NE_dat_inf <- NE_dat %>%
   left_join(deflators, by = "year") %>%
-  mutate(totalvl_inf = totalvl/adjust)
+  mutate(totalvl_inf = totalvl/adjust) %>%
+  select(-adjust, -series_id)
 
 
 
@@ -135,13 +134,12 @@ NE_dat_inf <- NE_dat %>%
 NE_dat_inf$year<-as.character(NE_dat_inf$year)
 
 #0-1 range scale
-#norm everything except lobster columns
-NE_process <- preProcess(as.data.frame(NE_dat_inf[c(-8,-12)]), rangeBounds = c(0,1), method=c("range"))
+NE_process <- preProcess(as.data.frame(NE_dat_inf), rangeBounds = c(0,1), method=c("range"))
 NE_normalized <- predict(NE_process, as.data.frame(NE_dat_inf))
 
 
 #calculate average
-NE_normalized$port_ind_score <-rowMeans(NE_normalized[,c("totallbs","totalvl_inf","totaldealers","com_permits", )], na.rm=FALSE)
+NE_normalized$port_ind_score <-rowMeans(NE_normalized[,c("totallbs","totalvl_inf","totaldealers","com_permits" )], na.rm=FALSE)
 
 #port_live
 NE_normalized$port_live_score <-rowMeans(NE_normalized[,c("totaldealers","com_permits")], na.rm=FALSE)
@@ -169,7 +167,7 @@ NE_normalized_2024 %>%
   theme_bw()+
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_line(color = "#8ccde3",
-                                        size = 0.2,
+                                        linewidth = 0.2,
                                         linetype = 2))+
   geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "red")+
   geom_label_repel(aes(label = ifelse(port_live_score>0.15,as.character(place_id),'')),
