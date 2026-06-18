@@ -33,25 +33,37 @@ if (length(top_5_ports_2024) == 0) {
 # -------------------------------------------------------------------
 ui <- fluidPage(
   
-  # CHANGED: Enhanced Title Panel to include the PCFA logo inline with the text
-  # Inside your UI fluidPage...
+  # Title Panel with PCFA logo inline
   titlePanel(
     title = div(style = "display: flex; align-items: center; margin-bottom: 15px;",
-                
-                # R will now grab the image and encode it automatically
-                # Replace the placeholder below with your EXACT computer file path
                 img(src = dataURI(file = "C:/Users/robert.murphy/Documents/Fishing_Social_Indicators_2026/READ_SSB_Port_Activity_Indicators/data_folder/internal/PCFA_logo_1.png"), 
                     height = "160px", 
                     style = "margin-right: 20px;"),
-                
                 "New England Port Commercial Fishing Activity Comparison (2007-2024)"
     ),
     windowTitle = "PCFA Dashboard" 
   ),
   
+  # MOVED: This wellPanel is now outside sidebarLayout so it spans the full width above the split
+  wellPanel(
+    style = "background-color: #fcfcfc; border: 1px solid #e3e3e3; border-radius: 6px; padding: 15px; margin-bottom: 20px;",
+    h4("Dashboard Information & Overview", style = "margin-top: 0; font-weight: bold; color: #2c3e50;"),
+    p("Welcome to the PCFA Dashboard. This tool allows users to explore and compare the commercial fishing activity of select ports across New England. The 'overall activity indicator' is a relative metric and is a reflection of the overall activity of a port in the commercial fishing industry. To generate these scores, we include the following data; the number of dealers buying fish, the number of vessels selling fish, the total pounds and value of fish landed, and the number of dealer and commercial permits registered in that location. Each of these variables is normalized using a min-max scaling approach (between 0 and 1) and an overall mean is calculated for each port and year combination."),
+    p(style = "margin-bottom: 0; font-size: 0.95em; color: #555;",
+      tags$strong("Note:"), " Use the sidebar controls to filter options by state, search specific port names, or quickly remove active ports by clicking their respective badge buttons."),
+    
+    # Styled horizontal line separating sections
+    tags$hr(style = "border-top: 1px solid #e0e0e0; margin-top: 25px; margin-bottom: 20px;"),
+    
+    h4("Sub-dimensions of Activity", style = "margin-top: 5px; font-weight: bold; color: #2c3e50;"),
+    p(style = "margin-bottom: 5px;", tags$strong("Port Transaction Activity:"), " This relative metric reflects the magnitude of fish sale transactions in each port from the perspective of dealers and commercial fishermen."),
+    p(style = "margin-bottom: 5px;", tags$strong("Port Volume Activity:"), " This relative metric reflects the volume of fish landed including both the overall pounds of fish and the value of fish (in 2024 dollars) landed in each port."),
+    p(style = "margin-bottom: 0;", tags$strong("Port Permit Activity:"), " This relative metric reflects the number of dealer permits and commercial fishing permits that are registered in each port.")
+  ),
+  
+  # Structural split containing only your sidebar controls and the plot space
   sidebarLayout(
     sidebarPanel(
-      
       # State Filter Checkboxes
       checkboxGroupInput(inputId = "state",
                          label = "Filter by State(s):",
@@ -83,25 +95,6 @@ ui <- fluidPage(
     ),
     
     mainPanel(
-      # ADDED: Text box containing sample text placed directly above the plot
-      wellPanel(
-        style = "background-color: #fcfcfc; border: 1px solid #e3e3e3; border-radius: 6px; padding: 15px; margin-bottom: 20px;",
-        h4("Dashboard Information & Overview", style = "margin-top: 0; font-weight: bold; color: #2c3e50;"),
-        p("Welcome to the PCFA Dashboard. This tool allows users to explore and compare the commercial fishing activity of select ports across New England. The 'overall activity indicator' is a relative metric and is a reflection of the overall activity of a port in the commercial fishing industry. To generate these scores, we include the following data; the number of dealers buying fish, the number of vessels selling fish, the total pounds and value of fish landed, and the number of dealer and commercial permits registered in that location. Each of these variables is normalized using a min-max scaling approach (between 0 and 1) and an overall mean is calculated for each port and year combination."),
-        p(style = "margin-bottom: 0; font-size: 0.95em; color: #555;",
-          tags$strong("Note:"), " Use the sidebar controls to filter options by state, search specific port names, or quickly remove active ports by clicking their respective badge buttons."),
-        
-      
-        
-        # Added a styled horizontal line to separate sections
-        tags$hr(style = "border-top: 1px solid #e0e0e0; margin-top: 25px; margin-bottom: 20px;"),
-        
-        h4("Sub-dimensions of Activity", style = "margin-top: 5px; font-weight: bold; color: #2c3e50;"),
-        p(style = "margin-bottom: 5px;", tags$strong("Port Transaction Activity:"), " This relative metric reflects the magnitude of fish sale transactions in each port from the perspective of dealers and commercial fishermen."),
-        p(style = "margin-bottom: 5px;", tags$strong("Port Volume Activity:"), " This relative metric reflects the volume of fish landed including both the overall pounds of fish and the value of fish (in 2024 dollars) landed in each port."),
-        p(style = "margin-bottom: 0;", tags$strong("Port Permit Activity:"), " This relative metric reflects the number of dealer permits and commercial fishing permits that are registered in each port."),
-
-      ),
       plotOutput("trendPlot", height = "600px")
     )
   )
