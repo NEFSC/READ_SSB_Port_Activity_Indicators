@@ -155,6 +155,52 @@ share_dat <- NE_normalized [, c("PORT_NAME", "STATE_ABB", "place_id", "year", "p
 # Export using a specific file path
 write.csv(share_dat, "C:/Users/robert.murphy/Documents/Fishing_Social_Indicators_2026/READ_SSB_Port_Activity_Indicators/data_folder/internal/PCFA_share.csv", row.names = FALSE)
 
+#explore some of the data as an option
+
+
+
+
+#first, make df of 2024 only
+NE_normalized_2024<- NE_normalized[(NE_normalized$year==2024), ]
+
+
+
+
+
+
+#make some histograms to explore data
+
+# Reshape data and plot
+NE_normalized %>%
+  pivot_longer(
+    cols = c(totallbs, totalvl_inf, total_dealers_permitted, com_permits,total_dealers_land,total_boats_land), # Specify the columns to plot
+    names_to = "variable", 
+    values_to = "value"
+  ) %>%
+  ggplot(aes(x = variable, y = value, fill = variable)) +
+  # Transparent violin shape
+  geom_jitter(alpha = 0.2, width = 0.1, color = "black") + # Transparent raw data points
+  geom_violin(alpha = 0.9, trim = FALSE) +
+  facet_wrap(~ variable, scales = "free") + # Panel view
+  theme_minimal() +
+  theme(legend.position = "none") # Removes redundant legend
+
+
+#lets try just one year
+NE_normalized_2024 %>%
+  pivot_longer(
+    cols = c(totallbs, totalvl_inf, total_dealers_permitted, com_permits,total_dealers_land,total_boats_land), # Specify the columns to plot
+    names_to = "variable", 
+    values_to = "value"
+  ) %>%
+  ggplot(aes(x = variable, y = value, fill = variable)) +
+  # Transparent violin shape
+  geom_jitter(alpha = 0.2, width = 0.1, color = "black") + # Transparent raw data points
+  geom_violin(alpha = 0.9, trim = FALSE) +
+  facet_wrap(~ variable, scales = "free") + # Panel view
+  theme_minimal() +
+  theme(legend.position = "none") # Removes redundant legend
+
 
 #### STOP ####
 
