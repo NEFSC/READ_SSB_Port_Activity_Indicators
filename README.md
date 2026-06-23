@@ -6,7 +6,7 @@
 
 
 
-\*\* The Port Commercial Fishing Activity (PCFA) Indicators are a suites of indicators used to understand relative participation rates of commercial fishing ports over time. They are composed of commercial fishing landings and permit data from 2007 through 2024 summarized to indicate port-level activity in commercial fishing.\*
+\*\* The Port Commercial Fishing Activity (PCFA) Indicators are a suites of indicators used to understand relative participation rates of commercial fishing ports over time. They are composed of commercial fishing landings and permit data from 2000 through 2024 summarized to indicate port-level activity in commercial fishing.\*
 
 
 
