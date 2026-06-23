@@ -342,7 +342,7 @@ top_ports_permit_dat  %>%
                                         linetype = 2))+
   scale_y_continuous(limits = c(0, 1)) +
   scale_x_continuous(expand = expansion(mult = c(0.1, .6)),
-                     limits= c(NA, NA), breaks = c(2008,2012,2016,2020,2024))+
+                     limits= c(NA, NA), breaks = c(2000,2004,2008,2012,2016,2020,2024))+
   theme(legend.position = "none")+
   geom_label_repel(aes(label = label),hjust=0,
                    nudge_x = 1, xlim=c(2025,2035),
@@ -384,15 +384,15 @@ dev.off()
 #dev.off()
 
 #facet
-place_means <- top_ports_dat %>%
+place_means <- top_ports_overall_dat %>%
   group_by(place_id) %>%
-  summarize(overall_mean = mean(port_ind_score, na.rm = TRUE))
+  summarize(overall_mean = mean(port_overall_score, na.rm = TRUE))
 
 
 #tiff("NEFMC_port_scores_facet_full.tiff", units="in", width=5, height=7, res=200)
 
-top_ports_dat  %>%
-  ggplot(aes(x=year, y=port_ind_score)) + 
+top_ports_overall_dat  %>%
+  ggplot(aes(x=year, y=port_overall_score)) + 
   geom_point(size=2, alpha = 0.9)+
   geom_path(linewidth=0.2)+
   ylab("Port Commercial Fishing Activity Indicator score")+
