@@ -25,7 +25,7 @@ setwd("C:/Users/robert.murphy/Documents/Fishing_Social_Indicators_2026/READ_SSB_
 #### DATA WRANGLING ####
 
 #fishing data from Tanya
-dat <- read.csv("fishdata_avgPriceSTRev_all.csv")
+dat <- read.csv("fishdata_portFishingIndicators_all.csv")
 
 
 #check states present
@@ -49,23 +49,14 @@ NE_dat <- dat_clean[(dat_clean$STATE_ABB=='ME' |
                        dat_clean$STATE_ABB=='NH'), ]
 
 
-#make new columns representing number of dealers landing in port and number of boat landing in port
-NE_dat$total_dealers_land <- NE_dat$bluefish_dealers + NE_dat$butmacsq_dealers + NE_dat$dogfish_dealers + NE_dat$herring_dealers + 
-  NE_dat$lobster_dealers + NE_dat$lrgmesh_dealers + NE_dat$monkfish_dealers + NE_dat$quahog_dealers + NE_dat$redcrab_dealers + NE_dat$salmon_dealers + 
-  NE_dat$scallops_dealers + NE_dat$sfscpbsb_dealers + NE_dat$skates_dealers + NE_dat$smlmesh_dealers + NE_dat$surfclam_dealers + NE_dat$tilefish_dealers
-
-NE_dat$total_boats_land <- NE_dat$bluefish_boats + NE_dat$butmacsq_boats + NE_dat$dogfish_boats + NE_dat$herring_boats + 
-  NE_dat$lobster_boats + NE_dat$lrgmesh_boats + NE_dat$monkfish_boats + NE_dat$quahog_boats + NE_dat$redcrab_boats + NE_dat$salmon_boats + 
-  NE_dat$scallops_boats + NE_dat$sfscpbsb_boats + NE_dat$skates_boats + NE_dat$smlmesh_boats + NE_dat$surfclam_boats + NE_dat$tilefish_boats
-
-
 
 #subset just variables we care about for now, with lobster pounds for NEFMC port sorting
 NE_dat <-NE_dat[c("PORT_NAME","STATE_ABB", "CAL_YEAR",
                   "totalvl","totallbs", 
-                  "totaldealers", 
+                  "total_dealers_permitted", 
                   "com_permits",
-                  "total_dealers_land", "total_boats_land")]
+                  "total_dealers_land", 
+                  "total_boats_land")]
 
 
 #rename fish year column 
@@ -78,10 +69,10 @@ NE_dat$place_id <- paste(NE_dat$PORT_NAME, NE_dat$STATE_ABB, sep = "_")
 
 
 #make columns numeric 
-NE_dat$totalvl <- as.numeric(NE_dat$totalvl)
-NE_dat$totallbs <- as.numeric(NE_dat$totallbs)
-NE_dat$totaldealers <- as.numeric(NE_dat$totaldealers)
-NE_dat$com_permits <- as.numeric(NE_dat$com_permits)
+#NE_dat$totalvl <- as.numeric(NE_dat$totalvl)
+#NE_dat$totallbs <- as.numeric(NE_dat$totallbs)
+#NE_dat$total_dealers_permitted <- as.numeric(NE_dat$total_dealers_permitted)
+#NE_dat$com_permits <- as.numeric(NE_dat$com_permits)
 
 
 
@@ -97,7 +88,7 @@ fredr_set_key(ST_API)
 # Fetch annual "Gross Domestic Product: Implicit Price Deflator" (Series: A191RD3A086NBEA)
 deflators <- fredr(
   series_id = "A191RD3A086NBEA",
-  observation_start = as.Date("2007-01-01"),
+  observation_start = as.Date("2000-01-01"),
   observation_end = as.Date("2024-12-31")
 )
 
@@ -127,6 +118,8 @@ NE_dat_inf <- NE_dat %>%
 
 
 
+
+
 ##### normalize ####
 
 #normalize data according to min-max methods
@@ -138,22 +131,31 @@ NE_process <- preProcess(as.data.frame(NE_dat_inf), rangeBounds = c(0,1), method
 NE_normalized <- predict(NE_process, as.data.frame(NE_dat_inf))
 
 
+NE_dat <-NE_dat[c("PORT_NAME","STATE_ABB", "CAL_YEAR",
+                  "totalvl","totallbs", 
+                  "total_dealers_permitted", 
+                  "com_permits",
+                  "total_dealers_land", 
+                  "total_boats_land")]
+
 #calculate average overall
-NE_normalized$port_ind_score <-rowMeans(NE_normalized[,c("totallbs","totalvl_inf","totaldealers","com_permits","total_dealers_land","total_boats_land" )], na.rm=FALSE)
+NE_normalized$port_overall_score <-rowMeans(NE_normalized[,c("totallbs","totalvl_inf",
+                                                             "total_dealers_permitted","com_permits",
+                                                             "total_dealers_land","total_boats_land" )], na.rm=FALSE)
 
-#port_home
-NE_normalized$port_home_score <-rowMeans(NE_normalized[,c("totaldealers","com_permits")], na.rm=FALSE)
-
-
-#port_work (volume and actors)
-NE_normalized$port_work_score <-rowMeans(NE_normalized[,c("totallbs","totalvl_inf","total_dealers_land","total_boats_land")], na.rm=FALSE)
+#calculate permit score
+NE_normalized$port_permit_score <-rowMeans(NE_normalized[,c("total_dealers_permitted","com_permits")], na.rm=FALSE)
 
 
-#port_volume
+#calculate volume score
 NE_normalized$port_volume_score <-rowMeans(NE_normalized[,c("totallbs","totalvl_inf")], na.rm=FALSE)
 
-#port_actors
-NE_normalized$port_actors_score <-rowMeans(NE_normalized[,c("total_dealers_land","total_boats_land")], na.rm=FALSE)
+
+#calculate transaction score
+NE_normalized$port_transaction_score <-rowMeans(NE_normalized[,c("total_dealers_land","total_boats_land")], na.rm=FALSE)
+
+
+
 
 
 #find top communities last year
@@ -164,28 +166,6 @@ NE_normalized_2024<- NE_normalized[(NE_normalized$year==2024), ]
 
 
 
-NE_normalized_2024 %>%
-  ggplot(aes(x=port_home_score, y=port_work_score)) + 
-  geom_point(size=3, alpha = 0.9)+
-  ylab("Port Work")+
-  xlab("Port Home")+
-  theme_bw()+
-  theme(panel.grid.major = element_blank(),
-        panel.grid.minor = element_line(color = "#8ccde3",
-                                        linewidth = 0.2,
-                                        linetype = 2))+
-  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "red")+
-  geom_label_repel(aes(label = ifelse(port_home_score>0.15,as.character(place_id),'')),
-                   size=2,
-                   force=2.5,
-                   box.padding   = 0.5, 
-                   point.padding = 0,
-                   segment.color = 'grey50',
-                   min.segment.length = 0.01,
-                   max.overlaps=Inf,
-                   label.size = NA,
-                   fill = alpha(c("white"),0.1))
-
 
 
 #make some histograms to explore data
@@ -193,7 +173,7 @@ NE_normalized_2024 %>%
 # Reshape data and plot
 NE_normalized %>%
   pivot_longer(
-    cols = c(totallbs, totalvl_inf, totaldealers, com_permits,total_dealers_land,total_boats_land), # Specify the columns to plot
+    cols = c(totallbs, totalvl_inf, total_dealers_permitted, com_permits,total_dealers_land,total_boats_land), # Specify the columns to plot
     names_to = "variable", 
     values_to = "value"
   ) %>%
@@ -209,7 +189,7 @@ NE_normalized %>%
 #lets try just one year
 NE_normalized_2024 %>%
   pivot_longer(
-    cols = c(totallbs, totalvl_inf, totaldealers, com_permits,total_dealers_land,total_boats_land), # Specify the columns to plot
+    cols = c(totallbs, totalvl_inf, total_dealers_permitted, com_permits,total_dealers_land,total_boats_land), # Specify the columns to plot
     names_to = "variable", 
     values_to = "value"
   ) %>%
@@ -233,21 +213,21 @@ NE_normalized_2024 %>%
 
 #overall
 NE_normalized_2024$top_overall <- ifelse(
-  rank(-NE_normalized_2024$port_ind_score, ties.method = "min") <= 12, 
+  rank(-NE_normalized_2024$port_overall_score, ties.method = "min") <= 12, 
   "top", 
   "not"
 )
 
 #overall
-NE_normalized_2024$top_actors <- ifelse(
-  rank(-NE_normalized_2024$port_actors_score, ties.method = "min") <= 12, 
+NE_normalized_2024$top_transaction <- ifelse(
+  rank(-NE_normalized_2024$port_transaction_score, ties.method = "min") <= 12, 
   "top", 
   "not"
 )
 
 #overall
-NE_normalized_2024$top_home <- ifelse(
-  rank(-NE_normalized_2024$port_home_score, ties.method = "min") <= 12, 
+NE_normalized_2024$top_permit <- ifelse(
+  rank(-NE_normalized_2024$port_permit_score, ties.method = "min") <= 12, 
   "top", 
   "not"
 )
@@ -262,16 +242,16 @@ NE_normalized_2024$top_volume <- ifelse(
 
 #make list of top ports
 NE_ports_overall <- NE_normalized_2024$place_id[NE_normalized_2024$top_overall == "top"]
-NE_ports_actors <- NE_normalized_2024$place_id[NE_normalized_2024$top_actors == "top"]
-NE_ports_home <- NE_normalized_2024$place_id[NE_normalized_2024$top_home == "top"]
+NE_ports_transaction <- NE_normalized_2024$place_id[NE_normalized_2024$top_transaction == "top"]
+NE_ports_permit <- NE_normalized_2024$place_id[NE_normalized_2024$top_permit == "top"]
 NE_ports_volume<- NE_normalized_2024$place_id[NE_normalized_2024$top_volume == "top"]
 
 
 
 #make new df of full years based on top lists
 top_ports_overall_dat <- NE_normalized[NE_normalized$place_id %in% NE_ports_overall, ]
-top_ports_actors_dat <- NE_normalized[NE_normalized$place_id %in% NE_ports_actors, ]
-top_ports_home_dat <- NE_normalized[NE_normalized$place_id %in% NE_ports_home, ]
+top_ports_transaction_dat <- NE_normalized[NE_normalized$place_id %in% NE_ports_transaction, ]
+top_ports_permit_dat <- NE_normalized[NE_normalized$place_id %in% NE_ports_permit, ]
 top_ports_volume_dat <- NE_normalized[NE_normalized$place_id %in% NE_ports_volume, ]
 
 
@@ -283,8 +263,8 @@ top_ports_volume_dat <- NE_normalized[NE_normalized$place_id %in% NE_ports_volum
 
 #plot it
 top_ports_overall_dat$year <- as.numeric(top_ports_overall_dat$year)
-top_ports_actors_dat$year <- as.numeric(top_ports_actors_dat$year)
-top_ports_home_dat$year <- as.numeric(top_ports_home_dat$year)
+top_ports_transaction_dat$year <- as.numeric(top_ports_transaction_dat$year)
+top_ports_permit_dat$year <- as.numeric(top_ports_permit_dat$year)
 top_ports_volume_dat$year <- as.numeric(top_ports_volume_dat$year)
 
 
@@ -293,8 +273,8 @@ tiff("port_scores_temporal_overall.tiff", units="in", width=7, height=7, res=200
 
 
 top_ports_overall_dat  %>%
-  mutate(label = if_else(year == max(year) & port_ind_score >0.1, as.character(place_id), NA_character_)) %>%
-  ggplot(aes(x=year, y=port_ind_score, color=place_id)) + 
+  mutate(label = if_else(year == max(year) & port_overall_score >0.1, as.character(place_id), NA_character_)) %>%
+  ggplot(aes(x=year, y=port_overall_score, color=place_id)) + 
   geom_point(size=3, alpha = 0.9)+
   geom_path(linewidth=0.2)+
   ylab("Port Commercial Fishing Activity Indicator score")+
@@ -306,7 +286,7 @@ top_ports_overall_dat  %>%
                                         linetype = 2))+
   scale_y_continuous(limits = c(0, 1)) +
   scale_x_continuous(expand = expansion(mult = c(0.1, .6)),
-                     limits= c(NA, NA), breaks = c(2008,2012,2016,2020,2024))+
+                     limits= c(NA, NA), breaks = c(2000,2004, 2008,2012,2016,2020,2024))+
   theme(legend.position = "none")+
   geom_label_repel(aes(label = label),hjust=0,
                    nudge_x = 1, xlim=c(2025,2035),
@@ -317,16 +297,16 @@ dev.off()
 
 
 
-#actors
-tiff("port_scores_temporal_actors.tiff", units="in", width=7, height=7, res=200)
+#transaction
+tiff("port_scores_temporal_transaction.tiff", units="in", width=7, height=7, res=200)
 
 
-top_ports_actors_dat  %>%
-  mutate(label = if_else(year == max(year) & port_actors_score >0.15, as.character(place_id), NA_character_)) %>%
-  ggplot(aes(x=year, y=port_actors_score, color=place_id)) + 
+top_ports_transaction_dat  %>%
+  mutate(label = if_else(year == max(year) & port_transaction_score >0.15, as.character(place_id), NA_character_)) %>%
+  ggplot(aes(x=year, y=port_transaction_score, color=place_id)) + 
   geom_point(size=3, alpha = 0.9)+
   geom_path(linewidth=0.2)+
-  ylab("ACTORS Indicator score")+
+  ylab("Transaction Activity Indicator score")+
   xlab("Year")+
   theme_bw()+
   theme(panel.grid.major = element_blank(),
@@ -335,7 +315,7 @@ top_ports_actors_dat  %>%
                                         linetype = 2))+
   scale_y_continuous(limits = c(0, 1)) +
   scale_x_continuous(expand = expansion(mult = c(0.1, .6)),
-                     limits= c(NA, NA), breaks = c(2008,2012,2016,2020,2024))+
+                     limits= c(NA, NA), breaks = c(2000,2004,2008,2012,2016,2020,2024))+
   theme(legend.position = "none")+
   geom_label_repel(aes(label = label),hjust=0,
                    nudge_x = 1, xlim=c(2025,2035),
@@ -345,15 +325,15 @@ dev.off()
 
 
 
-#home
-tiff("port_scores_temporal_home.tiff", units="in", width=7, height=7, res=200)
+#permit
+tiff("port_scores_temporal_permit.tiff", units="in", width=7, height=7, res=200)
 
-top_ports_home_dat  %>%
-  mutate(label = if_else(year == max(year) & port_home_score >0.15, as.character(place_id), NA_character_)) %>%
-  ggplot(aes(x=year, y=port_home_score, color=place_id)) + 
+top_ports_permit_dat  %>%
+  mutate(label = if_else(year == max(year) & port_permit_score >0.15, as.character(place_id), NA_character_)) %>%
+  ggplot(aes(x=year, y=port_permit_score, color=place_id)) + 
   geom_point(size=3, alpha = 0.9)+
   geom_path(linewidth=0.2)+
-  ylab("HOME Indicator score")+
+  ylab("Permit Activity Indicator score")+
   xlab("Year")+
   theme_bw()+
   theme(panel.grid.major = element_blank(),
@@ -381,7 +361,7 @@ top_ports_volume_dat  %>%
   ggplot(aes(x=year, y=port_volume_score, color=place_id)) + 
   geom_point(size=3, alpha = 0.9)+
   geom_path(linewidth=0.2)+
-  ylab("VOLUME Indicator score")+
+  ylab("Volume Activity Indicator score")+
   xlab("Year")+
   theme_bw()+
   theme(panel.grid.major = element_blank(),
@@ -390,7 +370,7 @@ top_ports_volume_dat  %>%
                                         linetype = 2))+
   scale_y_continuous(limits = c(0, 1)) +
   scale_x_continuous(expand = expansion(mult = c(0.1, .6)),
-                     limits= c(NA, NA), breaks = c(2008,2012,2016,2020,2024))+
+                     limits= c(NA, NA), breaks = c(2000,2004,2008,2012,2016,2020,2024))+
   theme(legend.position = "none")+
   geom_label_repel(aes(label = label),hjust=0,
                    nudge_x = 1, xlim=c(2025,2035),
@@ -459,11 +439,11 @@ top_ports_dat  %>%
   #port_volume_score
   geom_path(aes(y = port_volume_score, color = "Volume Score"), linewidth = 1, alpha = 0.5) + 
   
-  #port_actors_score
-  geom_path(aes(y = port_actors_score , color = "Actors Score"), linewidth = 1, alpha = 0.5) +
+  #port_transaction_score
+  geom_path(aes(y = port_transaction_score , color = "transaction Score"), linewidth = 1, alpha = 0.5) +
   
-  #port_home_score
-  geom_path(aes(y = port_home_score, color = "Home Score"), linewidth = 1, alpha = 0.5) +
+  #port_permit_score
+  geom_path(aes(y = port_permit_score, color = "permit Score"), linewidth = 1, alpha = 0.5) +
   
   #overall score
   geom_point(aes(y = port_ind_score, color = "Overall Indicator Score"),size=2, alpha = 0.9)+
@@ -487,8 +467,8 @@ top_ports_dat  %>%
     name = "Score Type",
     values = c(
       "Volume Score" = "blue",
-      "Actors Score" = "green",
-      "Home Score" = "orange",
+      "transaction Score" = "green",
+      "permit Score" = "orange",
       "Overall Indicator Score" = "black"))+
   facet_wrap(~place_id, scales="free_y", ncol=3)
 
@@ -580,7 +560,7 @@ dev.off()
 
 NE_dat_k <-NE_normalized_2024[c(
   "totalvl_inf","totallbs", 
-  "totaldealers", 
+  "total_dealers_permitted", 
   "com_permits",
   "total_dealers_land", "total_boats_land")]
 
