@@ -54,7 +54,7 @@ N/A
 
 \*Port Volume Activity score (*port\_volume\_score*)
 
-\*Port Permit Activity score(*port\_permit\_score*)
+\*Port Permit Activity score (*port\_permit\_score*)
 
 
 
@@ -116,7 +116,7 @@ N/A
 
 \### Data Sources
 
-\*\*CAMS, 
+\*\*CAMS\_GARFO.CFG\_PORT, CAMS\_GARFO.CAMS\_LAND, CAMS\_GARFO.CFG\_ITIS, NEFSC\_GARFO.permit\_dealer, PERFORMANCE\_MEASURES.PM\_PORT\_CORRECTIONS, PERFORMANCE\_MEASURES.PM\_PORT\_TRANSFORMATIONS, NEFSC\_GARFO.permit\_vps\_fishery\_ner, NEFSC\_GARFO.permit\_vps\_vessel, ACCSP mvlandings
 
 
 
