@@ -1,6 +1,6 @@
 
 #### PORT ACTIVITY COMMERCIAL FISHING INDICATOR ####
-#this code takes the data from CAMS and PERMIT tables at the port level and calculated activity indicators####
+#this take the PCFA indicators and creates plots and help users vizualize trends####
 
 
 #### PACKAGES ####
@@ -32,50 +32,7 @@ dat <- read.csv("PCFA_share.csv")
 #find top communities last year
 
 #first, make df of 2024 only
-NE_normalized_2024<- NE_normalized[(NE_normalized$year==2024), ]
-
-
-
-
-
-
-#make some histograms to explore data
-
-# Reshape data and plot
-NE_normalized %>%
-  pivot_longer(
-    cols = c(totallbs, totalvl_inf, total_dealers_permitted, com_permits,total_dealers_land,total_boats_land), # Specify the columns to plot
-    names_to = "variable", 
-    values_to = "value"
-  ) %>%
-  ggplot(aes(x = variable, y = value, fill = variable)) +
-  # Transparent violin shape
-  geom_jitter(alpha = 0.2, width = 0.1, color = "black") + # Transparent raw data points
-  geom_violin(alpha = 0.9, trim = FALSE) +
-  facet_wrap(~ variable, scales = "free") + # Panel view
-  theme_minimal() +
-  theme(legend.position = "none") # Removes redundant legend
-
-
-#lets try just one year
-NE_normalized_2024 %>%
-  pivot_longer(
-    cols = c(totallbs, totalvl_inf, total_dealers_permitted, com_permits,total_dealers_land,total_boats_land), # Specify the columns to plot
-    names_to = "variable", 
-    values_to = "value"
-  ) %>%
-  ggplot(aes(x = variable, y = value, fill = variable)) +
-  # Transparent violin shape
-  geom_jitter(alpha = 0.2, width = 0.1, color = "black") + # Transparent raw data points
-  geom_violin(alpha = 0.9, trim = FALSE) +
-  facet_wrap(~ variable, scales = "free") + # Panel view
-  theme_minimal() +
-  theme(legend.position = "none") # Removes redundant legend
-
-
-
-
-
+dat_2024<- dat[(dat$year==2024), ]
 
 
 #### TOP PORTS ####
@@ -83,47 +40,47 @@ NE_normalized_2024 %>%
 
 
 #overall
-NE_normalized_2024$top_overall <- ifelse(
-  rank(-NE_normalized_2024$port_overall_score, ties.method = "min") <= 12, 
+dat_2024$top_overall <- ifelse(
+  rank(-dat_2024$port_overall_score, ties.method = "min") <= 12, 
   "top", 
   "not"
 )
 
 #overall
-NE_normalized_2024$top_transaction <- ifelse(
-  rank(-NE_normalized_2024$port_transaction_score, ties.method = "min") <= 12, 
+dat_2024$top_transaction <- ifelse(
+  rank(-dat_2024$port_transaction_score, ties.method = "min") <= 12, 
   "top", 
   "not"
 )
 
 #overall
-NE_normalized_2024$top_permit <- ifelse(
-  rank(-NE_normalized_2024$port_permit_score, ties.method = "min") <= 12, 
+dat_2024$top_permit <- ifelse(
+  rank(-dat_2024$port_permit_score, ties.method = "min") <= 12, 
   "top", 
   "not"
 )
 
 #overall
-NE_normalized_2024$top_volume <- ifelse(
-  rank(-NE_normalized_2024$port_volume_score, ties.method = "min") <= 12, 
+dat_2024$top_volume <- ifelse(
+  rank(-dat_2024$port_volume_score, ties.method = "min") <= 12, 
   "top", 
   "not"
 )
 
 
 #make list of top ports
-NE_ports_overall <- NE_normalized_2024$place_id[NE_normalized_2024$top_overall == "top"]
-NE_ports_transaction <- NE_normalized_2024$place_id[NE_normalized_2024$top_transaction == "top"]
-NE_ports_permit <- NE_normalized_2024$place_id[NE_normalized_2024$top_permit == "top"]
-NE_ports_volume<- NE_normalized_2024$place_id[NE_normalized_2024$top_volume == "top"]
+NE_ports_overall <- dat_2024$place_id[dat_2024$top_overall == "top"]
+NE_ports_transaction <- dat_2024$place_id[dat_2024$top_transaction == "top"]
+NE_ports_permit <- dat_2024$place_id[dat_2024$top_permit == "top"]
+NE_ports_volume<- dat_2024$place_id[dat_2024$top_volume == "top"]
 
 
 
 #make new df of full years based on top lists
-top_ports_overall_dat <- NE_normalized[NE_normalized$place_id %in% NE_ports_overall, ]
-top_ports_transaction_dat <- NE_normalized[NE_normalized$place_id %in% NE_ports_transaction, ]
-top_ports_permit_dat <- NE_normalized[NE_normalized$place_id %in% NE_ports_permit, ]
-top_ports_volume_dat <- NE_normalized[NE_normalized$place_id %in% NE_ports_volume, ]
+top_ports_overall_dat <- dat[dat$place_id %in% NE_ports_overall, ]
+top_ports_transaction_dat <- dat[dat$place_id %in% NE_ports_transaction, ]
+top_ports_permit_dat <- dat[dat$place_id %in% NE_ports_permit, ]
+top_ports_volume_dat <- dat[dat$place_id %in% NE_ports_volume, ]
 
 
 
@@ -140,7 +97,7 @@ top_ports_volume_dat$year <- as.numeric(top_ports_volume_dat$year)
 
 
 #overall
-tiff("port_scores_temporal_overall.tiff", units="in", width=7, height=7, res=200)
+#tiff("port_scores_temporal_overall.tiff", units="in", width=7, height=7, res=200)
 
 
 top_ports_overall_dat  %>%
@@ -163,13 +120,13 @@ top_ports_overall_dat  %>%
                    nudge_x = 1, xlim=c(2025,2035),
                    na.rm = TRUE, max.overlaps = Inf)
 
-dev.off()
+#dev.off()
 
 
 
 
 #transaction
-tiff("port_scores_temporal_transaction.tiff", units="in", width=7, height=7, res=200)
+#tiff("port_scores_temporal_transaction.tiff", units="in", width=7, height=7, res=200)
 
 
 top_ports_transaction_dat  %>%
@@ -192,12 +149,12 @@ top_ports_transaction_dat  %>%
                    nudge_x = 1, xlim=c(2025,2035),
                    na.rm = TRUE, max.overlaps = Inf)
 
-dev.off()
+#dev.off()
 
 
 
 #permit
-tiff("port_scores_temporal_permit.tiff", units="in", width=7, height=7, res=200)
+#tiff("port_scores_temporal_permit.tiff", units="in", width=7, height=7, res=200)
 
 top_ports_permit_dat  %>%
   mutate(label = if_else(year == max(year) & port_permit_score >0.15, as.character(place_id), NA_character_)) %>%
@@ -219,13 +176,13 @@ top_ports_permit_dat  %>%
                    nudge_x = 1, xlim=c(2025,2035),
                    na.rm = TRUE, max.overlaps = Inf)
 
-dev.off()
+#dev.off()
 
 
 
 
 
-tiff("port_scores_temporal_volume.tiff", units="in", width=7, height=7, res=200)
+#tiff("port_scores_temporal_volume.tiff", units="in", width=7, height=7, res=200)
 
 top_ports_volume_dat  %>%
   mutate(label = if_else(year == max(year) & port_volume_score >0.05, as.character(place_id), NA_character_)) %>%
@@ -248,7 +205,7 @@ top_ports_volume_dat  %>%
                    na.rm = TRUE, max.overlaps = Inf)
 
 
-dev.off()
+#dev.off()
 
 
 
