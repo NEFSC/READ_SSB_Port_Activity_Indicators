@@ -249,11 +249,15 @@ top_ports_overall_dat  %>%
 
 
 #make a plot with other sub-dimensions
-tiff("NE_scores_plot1.tiff", units="in", width=7, height=7, res=200)
+tiff("NE_scores_plot2.tiff", units="in", width=7, height=7, res=200)
 
 
+place_means <- top_ports_overall_dat %>%
+  group_by(place_id) %>%
+  summarize(overall_mean = mean(port_overall_score, na.rm = TRUE))
 
-top_ports_dat  %>%
+
+top_ports_overall_dat  %>%
   ggplot(aes(x=year)) + 
   
   geom_hline(
@@ -265,17 +269,17 @@ top_ports_dat  %>%
   ) +
   
   #port_volume_score
-  geom_path(aes(y = port_volume_score, color = "Volume Score"), linewidth = 1, alpha = 0.5) + 
+  geom_path(aes(y = port_volume_score, color = "Volume score"), linewidth = 1, alpha = 0.5) + 
   
   #port_transaction_score
-  geom_path(aes(y = port_transaction_score , color = "transaction Score"), linewidth = 1, alpha = 0.5) +
+  geom_path(aes(y = port_transaction_score , color = "Transaction score"), linewidth = 1, alpha = 0.5) +
   
   #port_permit_score
-  geom_path(aes(y = port_permit_score, color = "permit Score"), linewidth = 1, alpha = 0.5) +
+  geom_path(aes(y = port_permit_score, color = "Permit score"), linewidth = 1, alpha = 0.5) +
   
   #overall score
-  geom_point(aes(y = port_ind_score, color = "Overall Indicator Score"),size=2, alpha = 0.9)+
-  geom_path(aes(y = port_ind_score, color = "Overall Indicator Score"),linewidth=0.2)+
+  geom_point(aes(y = port_overall_score, color = "Overall Indicator score"),size=2, alpha = 0.9)+
+  geom_path(aes(y = port_overall_score, color = "Overall Indicator score"),linewidth=0.2)+
   
   ylab("Port Commercial Fishing Activity Indicator score")+
   xlab("Year")+
@@ -294,16 +298,198 @@ top_ports_dat  %>%
   scale_color_manual(
     name = "Score Type",
     values = c(
-      "Volume Score" = "blue",
-      "transaction Score" = "green",
-      "permit Score" = "orange",
-      "Overall Indicator Score" = "black"))+
+      "Volume score" = "blue",
+      "Transaction score" = "green",
+      "Permit score" = "orange",
+      "Overall Indicator score" = "black"))+
   facet_wrap(~place_id, scales="free_y", ncol=3)
 
 
 
 dev.off()
 #new plot with changing background colors
+
+
+#try radar plot
+
+# --- 1. Structure the Data for coord_polar ---
+ #pivoting long and duplicating the first port's data at the end of each group.
+
+spider_data_native <- top_ports_overall_dat %>%
+  # Bring your 4 scores into a single long column
+  pivot_longer(
+    cols = c(port_volume_score, port_transaction_score, port_permit_score, port_overall_score), 
+    names_to = "Score_Type", 
+    values_to = "Score_Value"
+  ) %>%
+  mutate(Score_Type = case_when(
+    Score_Type == "port_volume_score" ~ "Volume score",
+    Score_Type == "port_transaction_score" ~ "Transaction score",
+    Score_Type == "port_permit_score" ~ "Permit score",
+    Score_Type == "port_overall_score" ~ "Overall Indicator score"
+  ))
+
+# Crucial Trick: Duplicate the first port's entries so the circular line closes perfectly
+first_port <- unique(spider_data_native$place_id)[1]
+
+closed_loop_data <- spider_data_native %>%
+  bind_rows(
+    spider_data_native %>% 
+      filter(place_id == first_port) %>% 
+      mutate(place_id = factor(place_id, levels = unique(spider_data_native$place_id)))
+  )
+
+# --- 2. Build the Plot ---
+ggplot(closed_loop_data, aes(x = place_id, y = Score_Value, color = Score_Type, group = Score_Type)) +
+  # Draw the lines connecting the ports
+  geom_path(linewidth = 0.8, alpha = 0.8) +
+  # Add points on the nodes
+  geom_point(size = 1.5, alpha = 0.8) +
+  
+  # Transform the plot into a circular layout (theta = "x" makes the ports wrap around the circle)
+  coord_polar(theta = "x") +
+  
+  # Split into a radar grid per year
+  facet_wrap(~year, ncol = 3) +
+  
+  # Use your exact original color choices
+  scale_color_manual(
+    name = "Score Type",
+    values = c(
+      "Volume score" = "blue",
+      "Transaction score" = "green",
+      "Permit score" = "orange",
+      "Overall Indicator score" = "black"
+    )
+  ) +
+  
+  # Styling and clean up
+  labs(
+    title = "Fishing Port Indicators Across Years",
+    x = NULL, 
+    y = "Indicator Score"
+  ) +
+  theme_bw() +
+  theme(
+    strip.text = element_text(size = 10, face = "bold"),
+    axis.text.x = element_text(size = 8, color = "black"), # Port labels on circle edge
+    panel.grid.major = element_line(color = "grey90", linewidth = 0.3),
+    panel.grid.minor = element_blank(),
+    legend.position = "bottom"
+  )
+
+
+
+
+
+##stop
+
+library(gganimate)
+library(transformr)
+
+
+
+# --- 1. Identify the Strict 2024 Order ---
+port_order_2024 <- top_ports_overall_dat %>%
+  filter(year == 2024) %>%
+  distinct(place_id, port_overall_score) %>%
+  arrange(desc(port_overall_score)) %>%
+  pull(place_id)
+
+# Create a reference mapping table with explicit numeric coordinates
+port_mapping <- data.frame(
+  place_id = port_order_2024,
+  port_numeric = 1:length(port_order_2024) # 1 to 12
+)
+
+# --- 2. Reshape and Map to Numeric Order ---
+spider_data_native <- top_ports_overall_dat %>%
+  pivot_longer(
+    cols = c(port_volume_score, port_transaction_score, port_permit_score, port_overall_score), 
+    names_to = "Score_Type", 
+    values_to = "Score_Value"
+  ) %>%
+  mutate(Score_Type = case_when(
+    Score_Type == "port_volume_score" ~ "Volume score",
+    Score_Type == "port_transaction_score" ~ "Transaction score",
+    Score_Type == "port_permit_score" ~ "Permit score",
+    Score_Type == "port_overall_score" ~ "Overall Indicator score"
+  )) %>%
+  # Merge the numeric sequence into the main data
+  inner_join(port_mapping, by = "place_id")
+
+# --- 3. Manually Create the Closed Loop (12 connects back to 1) ---
+# For every year and score type, we duplicate the Port #1 row and assign it a position of 13
+closed_loops <- spider_data_native %>%
+  filter(port_numeric == 1) %>%
+  mutate(port_numeric = 13)
+
+final_ordered_data <- spider_data_native %>%
+  bind_rows(closed_loops) %>%
+  # Physical row ordering rule that R cannot misinterpret
+  arrange(year, Score_Type, port_numeric)
+
+# --- 4. Build the Plot Using Numeric X-Axis ---
+animated_plot <- ggplot(final_ordered_data, aes(x = port_numeric, y = Score_Value, color = Score_Type, group = Score_Type)) +
+  geom_path(linewidth = 1, alpha = 0.4) +
+  geom_point(size = 3, alpha = 0.8) +
+  
+  # Force a circular layout on our numeric system
+  coord_polar(theta = "x", clip="off") +
+  
+  # Replace the numbers (1-12) on the outer edge with your actual Port names
+  scale_x_continuous(
+    breaks = 1:length(port_order_2024),
+    labels = port_order_2024
+  ) +
+  
+  scale_color_manual(
+    name = "Score Type",
+    values = c(
+      "Volume score" = "blue",
+      "Transaction score" = "green",
+      "Permit score" = "orange",
+      "Overall Indicator score" = "black"
+    )
+  ) +
+  
+  labs(
+    title = "Fishing Port Indicators - Year: {current_frame}",
+    subtitle = "Ports ordered clockwise by highest 2024 Overall Score",
+    x = NULL, 
+    y = "Indicator Score"
+  ) +
+  theme_bw() +
+  theme(
+    title = element_text(size = 14, face = "bold"),
+    axis.text.x = element_text(size = 9, color = "black"),
+    panel.grid.major = element_line(color = "grey90", linewidth = 0.3),
+    panel.grid.minor = element_blank(),
+    legend.position = "bottom",
+    plot.margin = margin(t = 20, r = 40, b = 20, l = 40, unit = "pt"),
+    panel.border = element_blank()
+  ) +
+  transition_manual(year)
+
+# --- 5. Render and Save ---
+
+
+
+animate(
+  animated_plot, 
+  nframes = length(unique(final_ordered_data$year)), 
+  fps = 1, 
+  res = 150, 
+  width = 1200,    # Increased width
+  height = 900,
+  renderer = gifski_renderer("port_indicators_perfect_loop.gif")
+)
+
+anim_save("animation1.gif")
+#stop
+
+
+
 
 
 
