@@ -5,29 +5,31 @@ library(dplyr)
 library(tidyr)
 library(base64enc)
 
+
+
 # Load the data outside the server function so it only loads once when the app starts
 #### set working directory ####
 setwd("C:/Users/robert.murphy/Documents/Fishing_Social_Indicators_2026/READ_SSB_Port_Activity_Indicators/data_folder/internal")
 
 # (Assumes NE_normalized.csv is in your working directory)
-df_raw <- read.csv("shiny_dat.csv")
+df_raw <- read.csv("PCFA_share.csv")
 
 #filter for 0
 df <- df_raw %>%
   filter(
-    port_actors_score != 0,
+    port_permit_score != 0,
     port_volume_score != 0,
-    port_work_score   != 0,
-    port_ind_score    != 0
+    port_transaction_score   != 0,
+    port_overall_score    != 0
   )
 
 # -------------------------------------------------------------------
 # PRE-COMPUTE DEFAULTS
 # -------------------------------------------------------------------
-# Calculate the top 5 ports in 2024 based on port_ind_score
+# Calculate the top 5 ports in 2024 based on port_overall_score
 top_5_ports_2024 <- df %>%
   filter(year == 2024) %>%
-  arrange(desc(port_ind_score)) %>%
+  arrange(desc(port_overall_score)) %>%
   slice_head(n = 5) %>%
   pull(place_id)
 
@@ -35,7 +37,7 @@ top_5_ports_2024 <- df %>%
 if (length(top_5_ports_2024) == 0) {
   top_5_ports_2024 <- df %>%
     filter(year == max(year, na.rm = TRUE)) %>%
-    arrange(desc(port_ind_score)) %>%
+    arrange(desc(port_overall_score)) %>%
     slice_head(n = 5) %>%
     pull(place_id)
 }
@@ -63,7 +65,7 @@ ui <- fluidPage(
     tags$hr(style = "border-top: 1px solid #e0e0e0; margin-top: 25px; margin-bottom: 20px;"),
     h4("Sub-dimensions of Activity", style = "margin-top: 5px; font-weight: bold; color: #2c3e50;"),
     p(style = "margin-bottom: 5px;", tags$strong("Port Transaction Activity:"), "Reflects the magnitude of fish sale transactions."),
-    p(style = "margin-bottom: 5px;", tags$strong("Port Volume Activity:"), "Reflects the volume and value of fish landed."),
+    p(style = "margin-bottom: 5px;", tags$strong("Port Volume Activity:"), "Reflects the volume and value of fish landed, and the number of trips taken."),
     p(style = "margin-bottom: 0;", tags$strong("Port Permit Activity:"), "Reflects the number of registered dealer and commercial permits.")
   ),
   
@@ -174,13 +176,13 @@ server <- function(input, output, session) {
     req(input$place)
     plot_data <- df %>%
       filter(place_id %in% input$place) %>%
-      select(place_id, year, port_actors_score, port_volume_score, port_work_score, port_ind_score) %>%
+      select(place_id, year, port_permit_score, port_volume_score, port_transaction_score, port_overall_score) %>%
       pivot_longer(cols = -c(year, place_id), names_to = "Indicator", values_to = "Value") %>%
       mutate(Indicator = case_when(
-        Indicator == "port_actors_score" ~ "Port Transaction Activity",
+        Indicator == "port_permit_score" ~ "Port Transaction Activity",
         Indicator == "port_volume_score" ~ "Port Volume Activity",
-        Indicator == "port_work_score"  ~ "Port Permit Activity",
-        Indicator == "port_ind_score"   ~ "Port Overall Activity",
+        Indicator == "port_transaction_score"  ~ "Port Permit Activity",
+        Indicator == "port_overall_score"   ~ "Port Overall Activity",
         TRUE ~ Indicator
       ))
     
@@ -205,25 +207,25 @@ server <- function(input, output, session) {
     raw_port_data <- df %>% 
       group_by(year) %>%
       mutate(
-        rank_actors_score = min_rank(desc(port_actors_score)),
+        rank_actors_score = min_rank(desc(port_permit_score)),
         rank_volume_score = min_rank(desc(port_volume_score)),
-        rank_work_score   = min_rank(desc(port_work_score)),
-        rank_ind_score    = min_rank(desc(port_ind_score))
+        rank_work_score   = min_rank(desc(port_transaction_score)),
+        rank_ind_score    = min_rank(desc(port_overall_score))
       ) %>% 
       ungroup() %>%
       filter(place_id == input$single_place)
     
     # 2. Reshape and clean the Score series
     scores_long <- raw_port_data %>%
-      select(year, port_actors_score, port_volume_score, port_work_score, port_ind_score) %>%
+      select(year, port_permit_score, port_volume_score, port_transaction_score, port_overall_score) %>%
       pivot_longer(cols = -year, names_to = "Indicator", values_to = "Value") %>%
       mutate(
         Type = "Indicator Score (Solid Line)",
         Indicator = case_when(
-          Indicator == "port_actors_score" ~ "Port Transaction Activity",
+          Indicator == "port_permit_score" ~ "Port Transaction Activity",
           Indicator == "port_volume_score" ~ "Port Volume Activity",
-          Indicator == "port_work_score"   ~ "Port Permit Activity",
-          Indicator == "port_ind_score"    ~ "Port Overall Activity",
+          Indicator == "port_transaction_score"   ~ "Port Permit Activity",
+          Indicator == "port_overall_score"    ~ "Port Overall Activity",
           TRUE ~ Indicator
         )
       )
