@@ -232,7 +232,7 @@ top_ports_overall_dat  %>%
                                         linetype = 2),
         axis.text.x = element_text(angle = 45, hjust = 1),
         strip.text = element_text(size = 5))+
-  scale_x_continuous(limits= c(2007, 2024), breaks = c(2008,2012,2016,2020,2024))+
+  scale_x_continuous(limits= c(2000, 2024), breaks = c(2000, 2004,2008,2012,2016,2020,2024))+
   scale_y_continuous(limits = c(0, NA))+
   theme(legend.position = "none")+
   facet_wrap(~place_id, scales="free_y", ncol=3)+geom_hline(

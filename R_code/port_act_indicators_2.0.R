@@ -124,12 +124,12 @@ NE_process <- preProcess(as.data.frame(NE_dat_inf), rangeBounds = c(0,1), method
 NE_normalized <- predict(NE_process, as.data.frame(NE_dat_inf))
 
 
-NE_dat <-NE_dat[c("PORT_NAME","STATE_ABB", "CAL_YEAR",
-                  "totalvl","totallbs", 
-                  "total_dealers_permitted", 
-                  "com_permits",
-                  "total_dealers_land", 
-                  "total_boats_land")]
+#NE_dat <-NE_dat[c("PORT_NAME","STATE_ABB", "CAL_YEAR",
+     #             "totalvl","totallbs", 
+      #            "total_dealers_permitted", 
+       #           "com_permits",
+        #          "total_dealers_land", 
+         #         "total_boats_land")]
 
 #calculate average overall
 NE_normalized$port_overall_score <-rowMeans(NE_normalized[,c("totallbs","totalvl_inf",
