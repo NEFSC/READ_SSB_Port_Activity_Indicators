@@ -73,7 +73,7 @@ deflators<-deflators %>%
 #### NEW ENGLAND ####
 
 #just keep NE states
-NE_dat <- dat_clean[(dat_clean$STATE_ABB=='ME' | 
+NE_dat1 <- dat_clean[(dat_clean$STATE_ABB=='ME' | 
                        dat_clean$STATE_ABB=='MA'| 
                        dat_clean$STATE_ABB=='RI'| 
                        dat_clean$STATE_ABB=='CT'| 
@@ -139,7 +139,7 @@ NE_normalized$port_transaction_score <-rowMeans(NE_normalized[,c("total_dealers_
 
 
 #make shareable dataframe with no confidential stuff
-share_dat_NE <- NE_normalized [, c("PORT_NAME", "STATE_ABB", "place_id", "year", "port_overall_score", "port_transaction_score", "port_volume_score", "port_permit_score")]
+share_dat_NE <- NE_normalized[NE_normalized$year >= 2010, c("PORT_NAME", "STATE_ABB", "place_id", "year", "port_overall_score", "port_transaction_score", "port_volume_score", "port_permit_score")]
 
 
 # Export using a specific file path
@@ -216,8 +216,8 @@ MA_normalized$port_volume_score <-rowMeans(MA_normalized[,c("totallbs","totalvl_
 MA_normalized$port_transaction_score <-rowMeans(MA_normalized[,c("total_dealers_land","total_boats_land")], na.rm=FALSE)
 
 
-#make shareable dataframe with no confidential stuff
-share_dat_MA <- MA_normalized [, c("PORT_NAME", "STATE_ABB", "place_id", "year", "port_overall_score", "port_transaction_score", "port_volume_score", "port_permit_score")]
+#make shareable dataframe with no confidential stuff and cut off at 2010
+share_dat_MA <- MA_normalized[MA_normalized$year >= 2010, c("PORT_NAME", "STATE_ABB", "place_id", "year", "port_overall_score", "port_transaction_score", "port_volume_score", "port_permit_score")]
 
 
 # Export using a specific file path
