@@ -73,7 +73,7 @@ deflators<-deflators %>%
 #### NEW ENGLAND ####
 
 #just keep NE states
-NE_dat1 <- dat_clean[(dat_clean$STATE_ABB=='ME' | 
+NE_dat <- dat_clean[(dat_clean$STATE_ABB=='ME' | 
                        dat_clean$STATE_ABB=='MA'| 
                        dat_clean$STATE_ABB=='RI'| 
                        dat_clean$STATE_ABB=='CT'| 
