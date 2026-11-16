@@ -140,10 +140,13 @@ NE_normalized$port_transaction_score <-rowMeans(NE_normalized[,c("total_dealers_
 
 #make shareable dataframe with no confidential stuff
 share_dat_NE <- NE_normalized[NE_normalized$year >= 2010, c("PORT_NAME", "STATE_ABB", "place_id", "year", "port_overall_score", "port_transaction_score", "port_volume_score", "port_permit_score")]
+share_dat_NE_all <- NE_normalized[NE_normalized$year >= 2000, c("PORT_NAME", "STATE_ABB", "place_id", "year", "port_overall_score", "port_transaction_score", "port_volume_score", "port_permit_score")]
 
 
 # Export using a specific file path
 write.csv(share_dat_NE, "C:/Users/robert.murphy/Documents/Fishing_Social_Indicators_2026/READ_SSB_Port_Activity_Indicators/data_folder/internal/PCFA_share_NE_10202026.csv", row.names = FALSE)
+# Export using a specific file path
+write.csv(share_dat_NE_all, "C:/Users/robert.murphy/Documents/Fishing_Social_Indicators_2026/READ_SSB_Port_Activity_Indicators/data_folder/internal/PCFA_share_NE_10202026_all.csv", row.names = FALSE)
 
 
 #### Mid-Atlantic ####
@@ -218,10 +221,12 @@ MA_normalized$port_transaction_score <-rowMeans(MA_normalized[,c("total_dealers_
 
 #make shareable dataframe with no confidential stuff and cut off at 2010
 share_dat_MA <- MA_normalized[MA_normalized$year >= 2010, c("PORT_NAME", "STATE_ABB", "place_id", "year", "port_overall_score", "port_transaction_score", "port_volume_score", "port_permit_score")]
+share_dat_MA_all <- MA_normalized[MA_normalized$year >= 2000, c("PORT_NAME", "STATE_ABB", "place_id", "year", "port_overall_score", "port_transaction_score", "port_volume_score", "port_permit_score")]
 
 
 # Export using a specific file path
 write.csv(share_dat_MA, "C:/Users/robert.murphy/Documents/Fishing_Social_Indicators_2026/READ_SSB_Port_Activity_Indicators/data_folder/internal/PCFA_share_MA_10202026.csv", row.names = FALSE)
+write.csv(share_dat_MA_all, "C:/Users/robert.murphy/Documents/Fishing_Social_Indicators_2026/READ_SSB_Port_Activity_Indicators/data_folder/internal/PCFA_share_MA_10202026_all.csv", row.names = FALSE)
 
 
 #### STOP ####
