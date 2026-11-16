@@ -23,14 +23,33 @@ setwd("C:/Users/robert.murphy/Documents/Fishing_Social_Indicators_2026/READ_SSB_
 
 #### DATA WRANGLING ####
 
-NE_dat <- read.csv("PCFA_share_NE_10202026.csv")
-MA_dat <- read.csv("PCFA_share_MA_10202026.csv")
+dat <- read.csv("PCFA_share_11-16-2026.csv")
+
 
 
 
 #find top ports last year
 
-#first, make df of 2024 only
+
+
+#create a MA and NE datatable
+#not including NC
+MA_dat <- dat[(dat$STATE_ABB=='NY' | 
+                dat$STATE_ABB=='PA'| 
+                dat$STATE_ABB=='NJ'| 
+                dat$STATE_ABB=='DE'| 
+                dat$STATE_ABB=='MD'| 
+                dat$STATE_ABB=='VA'), ]
+
+
+#just keep NE states
+NE_dat <- dat[(dat$STATE_ABB=='ME' | 
+                 dat$STATE_ABB=='MA'| 
+                 dat$STATE_ABB=='RI'| 
+                 dat$STATE_ABB=='CT'| 
+                 dat$STATE_ABB=='NH'), ]
+
+#make 2024 data
 NE_dat_2024<- NE_dat[(NE_dat$year==2024), ]
 MA_dat_2024<- MA_dat[(MA_dat$year==2024), ]
 
