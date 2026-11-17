@@ -1,6 +1,6 @@
 
 #### PORT ACTIVITY COMMERCIAL FISHING INDICATOR ####
-#this code takes the data from CAMS and PERMIT tables at the port level and calculated activity indicators####
+#this code takes the data from CAMS and PERMIT tables at the port level and calculated activity indicators#
 
 
 #### PACKAGES ####
@@ -25,7 +25,7 @@ setwd("C:/Users/robert.murphy/Documents/Fishing_Social_Indicators_2026/READ_SSB_
 #### DATA WRANGLING ####
 
 #fishing data from Tanya
-dat <- read.csv("fishdata_portFishingIndicators_all_11-16-2026.csv")
+dat <- read.csv("fishdata_portFishingIndicators_all_11-17-2026.csv")
 
 
 #check states present
@@ -38,7 +38,9 @@ dat_clean<-dat_clean[!grepl("DISTRICT", dat_clean$PORT_NAME),]
 
 dat_clean<-dat_clean[!grepl("\\(COUNTY\\)", dat_clean$PORT_NAME),]
 
-##### inflation #####
+
+
+##### INFLATION #####
 
 # Set your unique Federal Reserve API developer key
 ST_API <- readLines("ST_API.txt")
@@ -103,14 +105,14 @@ dat_inf <- dat_simple %>%
 
 
 
-##### normalize ####
+##### NORMALIZE ####
 
 #normalize data according to min-max methods
 #make year factor to prevent it from being included in the normalization process
 dat_inf$year<-as.character(dat_inf$year)
 
 #0-1 range scale
-dat_process <- preProcess(as.data.frame(NE_dat_inf), rangeBounds = c(0,1), method=c("range"))
+dat_process <- preProcess(as.data.frame(dat_inf), rangeBounds = c(0,1), method=c("range"))
 dat_normalized <- predict(dat_process, as.data.frame(dat_inf))
 
 
@@ -118,7 +120,7 @@ dat_normalized <- predict(dat_process, as.data.frame(dat_inf))
 #calculate average overall
 dat_normalized$port_overall_score <-rowMeans(dat_normalized[,c("totallbs","totalvl_inf",
                                                              "total_dealers_permitted","com_permits",
-                                                             "total_dealers_land","total_boats_land", "total_trips" )], na.rm=FALSE)
+                                                             "total_dealers_land","total_boats_land", "total_trips")], na.rm=FALSE)
 
 #calculate permit score
 dat_normalized$port_permit_score <-rowMeans(dat_normalized[,c("total_dealers_permitted","com_permits")], na.rm=FALSE)
@@ -133,15 +135,16 @@ dat_normalized$port_transaction_score <-rowMeans(dat_normalized[,c("total_dealer
 
 
 #make shareable dataframe with no confidential stuff
+#making two dataframes with different starting years (because reporting may have changed over time)
 share_dat_2010 <- dat_normalized[dat_normalized$year >= 2010, c("PORT_NAME", "STATE_ABB", "place_id", "year", "port_overall_score", "port_transaction_score", "port_volume_score", "port_permit_score")]
 share_dat_all <- dat_normalized[dat_normalized$year >= 2000, c("PORT_NAME", "STATE_ABB", "place_id", "year", "port_overall_score", "port_transaction_score", "port_volume_score", "port_permit_score")]
 
 
 # Export using a specific file path
-write.csv(share_dat, "C:/Users/robert.murphy/Documents/Fishing_Social_Indicators_2026/READ_SSB_Port_Activity_Indicators/data_folder/internal/PCFA_share_11-16-2026.csv", row.names = FALSE)
+write.csv(share_dat_2010, "C:/Users/robert.murphy/Documents/Fishing_Social_Indicators_2026/READ_SSB_Port_Activity_Indicators/data_folder/internal/PCFA_share2010_11-17-2026.csv", row.names = FALSE)
 
 # Export using a specific file path
-write.csv(share_dat_all, "C:/Users/robert.murphy/Documents/Fishing_Social_Indicators_2026/READ_SSB_Port_Activity_Indicators/data_folder/internal/PCFA_share_11-16-2026_all.csv", row.names = FALSE)
+write.csv(share_dat_all, "C:/Users/robert.murphy/Documents/Fishing_Social_Indicators_2026/READ_SSB_Port_Activity_Indicators/data_folder/internal/PCFA_shareall_11-17-2026.csv", row.names = FALSE)
 
 
 
