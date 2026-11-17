@@ -23,7 +23,7 @@ setwd("C:/Users/robert.murphy/Documents/Fishing_Social_Indicators_2026/READ_SSB_
 
 #### DATA WRANGLING ####
 
-dat <- read.csv("PCFA_share_11-16-2026.csv")
+dat <- read.csv("PCFA_share2010_11-17-2026.csv")
 
 
 
@@ -49,28 +49,28 @@ NE_dat <- dat[(dat$STATE_ABB=='ME' |
                  dat$STATE_ABB=='CT'| 
                  dat$STATE_ABB=='NH'), ]
 
-#make 2024 data
-NE_dat_2024<- NE_dat[(NE_dat$year==2024), ]
-MA_dat_2024<- MA_dat[(MA_dat$year==2024), ]
+#make 2025 data
+NE_dat_2025<- NE_dat[(NE_dat$year==2025), ]
+MA_dat_2025<- MA_dat[(MA_dat$year==2025), ]
 
 
 #### TOP PORTS ####
 #find top ports last year
-NE_dat_2024$top_overall <- ifelse(
-  rank(-NE_dat_2024$port_overall_score, ties.method = "min") <= 12, 
+NE_dat_2025$top_overall <- ifelse(
+  rank(-NE_dat_2025$port_overall_score, ties.method = "min") <= 12, 
   "top", 
   "not"
 )
 
-MA_dat_2024$top_overall <- ifelse(
-  rank(-MA_dat_2024$port_overall_score, ties.method = "min") <= 14 & MA_dat_2024$STATE_ABB != "NC",
+MA_dat_2025$top_overall <- ifelse(
+  rank(-MA_dat_2025$port_overall_score, ties.method = "min") <= 14 & MA_dat_2025$STATE_ABB != "NC",
   "top", 
   "not"
 )
 
 #make list of top ports
-NE_ports_overall <- NE_dat_2024$place_id[NE_dat_2024$top_overall == "top"]
-MA_ports_overall <- MA_dat_2024$place_id[MA_dat_2024$top_overall == "top"]
+NE_ports_overall <- NE_dat_2025$place_id[NE_dat_2025$top_overall == "top"]
+MA_ports_overall <- MA_dat_2025$place_id[MA_dat_2025$top_overall == "top"]
 
 #make new df of full years based on top list
 NE_top_ports_overall_dat <- NE_dat[NE_dat$place_id %in% NE_ports_overall, ]
@@ -214,7 +214,7 @@ dev.off()
 #### CENSUS INDICATORS ####
 
 #from Changhua's data, I changed the excel file to csv
-census<- read.csv("2024_National_Indicators_for_Northeast_102126.csv")
+census<- read.csv("2025_National_Indicators_for_Northeast_102126.csv")
 
 
 #keep only columns that we care about for SOE
