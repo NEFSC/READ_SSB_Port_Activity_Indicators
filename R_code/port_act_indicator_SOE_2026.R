@@ -32,7 +32,9 @@ dat <- read.csv("PCFA_share2010_11-17-2026.csv")
 
 
 
-#create a MA and NE datatable
+#create a MA and NE data
+
+#MA states
 #not including NC
 MA_dat <- dat[(dat$STATE_ABB=='NY' | 
                 dat$STATE_ABB=='PA'| 
@@ -42,7 +44,7 @@ MA_dat <- dat[(dat$STATE_ABB=='NY' |
                 dat$STATE_ABB=='VA'), ]
 
 
-#just keep NE states
+#NE states
 NE_dat <- dat[(dat$STATE_ABB=='ME' | 
                  dat$STATE_ABB=='MA'| 
                  dat$STATE_ABB=='RI'| 
@@ -77,12 +79,15 @@ NE_top_ports_overall_dat <- NE_dat[NE_dat$place_id %in% NE_ports_overall, ]
 MA_top_ports_overall_dat <- MA_dat[MA_dat$place_id %in% MA_ports_overall, ]
 
 
+#make year numeric
 NE_top_ports_overall_dat$year <- as.numeric(NE_top_ports_overall_dat$year)
 MA_top_ports_overall_dat$year <- as.numeric(MA_top_ports_overall_dat$year)
 
 
+####PLOTS####
 
-#means
+
+#calculate means for plotting purposes
 NE_place_means <- NE_top_ports_overall_dat %>%
   group_by(place_id) %>%
   summarize(overall_mean = mean(port_overall_score, na.rm = TRUE))
@@ -92,7 +97,13 @@ MA_place_means <- MA_top_ports_overall_dat %>%
   summarize(overall_mean = mean(port_overall_score, na.rm = TRUE))
 
 
-#### NE FACET plot####
+#### NE FACET plots####
+
+
+#this plot shows the overall activity indicator 
+  #and all sub-indices
+  #each facet plot represents one port
+  #y-axis scales with each facet for better within-port interpretations
 
 tiff("NE_top_ports_2026_v2.tiff", units="in", width=8, height=6, res=300)
 
@@ -149,6 +160,10 @@ NE_top_ports_overall_dat  %>%
 dev.off()
 
 
+#this plot shows the overall activity indicator and all sub-indices
+  #each facet plot represents one port
+  #y-axis is fixed to allow for better between-port comparisons
+
 tiff("NE_top_ports_2026_v3.tiff", units="in", width=8, height=6, res=300)
 
 
@@ -203,7 +218,14 @@ NE_top_ports_overall_dat  %>%
 
 dev.off()
 
- ####MA FACET plot####
+
+
+#### MA FACET plots ####
+
+#this plot shows the overall activity indicator 
+#and all sub-indices
+#each facet plot represents one port
+#y-axis scales with each facet for better within-port interpretations
 
 tiff("MA_top_ports_2026_v2.tiff", units="in", width=8, height=6, res=300)
 
@@ -258,6 +280,13 @@ MA_top_ports_overall_dat  %>%
 
 
 dev.off()
+
+
+
+#this plot shows the overall activity indicator and all sub-indices
+#each facet plot represents one port
+#y-axis is fixed to allow for better between-port comparisons
+
 
 tiff("MA_top_ports_2026_v3.tiff", units="in", width=8, height=6, res=300)
 
@@ -314,8 +343,12 @@ MA_top_ports_overall_dat  %>%
 dev.off()
 
 
+
+
+
 #### NE OVERALL PLOT ####
 
+#this plot has all top ports on one plot and only shows the overall indicator score
 
 
 tiff("NE_port_scores_temporal_overall.tiff", units="in", width=6, height=6, res=200)
@@ -353,6 +386,9 @@ dev.off()
 
 
 #### MA OVERALL PLOT ####
+
+#this plot has all top ports on one plot and only shows the overall indicator score
+
 
 tiff("MA_port_scores_temporal_overall.tiff", units="in", width=6, height=6, res=200)
 
@@ -392,6 +428,8 @@ dev.off()
 
 #### NE TRANSACTION PLOT ####
 
+#this plot has all top ports on one plot and only shows the transaction indicator score
+
 
 tiff("NE_port_scores_temporal_transaction.tiff", units="in", width=6, height=6, res=200)
 
@@ -429,6 +467,9 @@ dev.off()
 
 
 #### MA TRANSACTION PLOT ####
+
+#this plot has all top ports on one plot and only shows the transaction indicator score
+
 
 tiff("MA_port_scores_temporal_transaction.tiff", units="in", width=6, height=6, res=200)
 
@@ -468,6 +509,8 @@ dev.off()
 
 #### NE VOLUME PLOT ####
 
+#this plot has all top ports on one plot and only shows the volume indicator score
+
 
 tiff("NE_port_scores_temporal_volume.tiff", units="in", width=6, height=6, res=200)
 
@@ -503,6 +546,9 @@ dev.off()
 
 
 #### MA VOLUME PLOT ####
+
+#this plot has all top ports on one plot and only shows the volume indicator score
+
 
 tiff("MA_port_scores_temporal_volume.tiff", units="in", width=6, height=6, res=200)
 
@@ -540,6 +586,7 @@ dev.off()
 
 #### NE PERMIT PLOT ####
 
+#this plot has all top ports on one plot and only shows the permit indicator score
 
 tiff("NE_port_scores_temporal_permit.tiff", units="in", width=6, height=6, res=200)
 
@@ -576,6 +623,7 @@ dev.off()
 
 #### MA PERMIT PLOT ####
 
+#this plot has all top ports on one plot and only shows the permit indicator score
 
 tiff("MA_port_scores_temporal_permit.tiff", units="in", width=6, height=6, res=200)
 
