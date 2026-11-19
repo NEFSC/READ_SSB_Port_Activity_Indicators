@@ -142,7 +142,7 @@ NE_top_ports_overall_dat  %>%
         axis.text.x = element_text(angle = 45, hjust = 1),
         strip.text = element_text(size = 5),
         legend.position = "bottom")+
-  scale_x_continuous(limits= c(2010, 2025), breaks = c(2010,2014,2018,2022,2025))+
+  scale_x_continuous(limits= c(2010, 2025), breaks = c(2010,2015,2020,2025))+
   scale_y_continuous(limits = c(0, NA))+
   
   # Define the legend title and exact color mapping
@@ -201,7 +201,7 @@ NE_top_ports_overall_dat  %>%
         axis.text.x = element_text(angle = 45, hjust = 1),
         strip.text = element_text(size = 5),
         legend.position = "bottom")+
-  scale_x_continuous(limits= c(2010, 2025), breaks = c(2010,2014,2018,2022,2025))+
+  scale_x_continuous(limits= c(2010, 2025), breaks = c(2010,2015,2020,2025))+
   scale_y_continuous(limits = c(0, NA))+
   
   # Define the legend title and exact color mapping
@@ -264,7 +264,7 @@ MA_top_ports_overall_dat  %>%
         axis.text.x = element_text(angle = 45, hjust = 1),
         strip.text = element_text(size = 5),
         legend.position = "bottom")+
-  scale_x_continuous(limits= c(2010, 2025), breaks = c(2010,2014,2018,2022))+
+  scale_x_continuous(limits= c(2010, 2025), breaks = c(2010,2015,2020,2025))+
   scale_y_continuous(limits = c(0, NA))+
   
   # Define the legend title and exact color mapping
@@ -325,7 +325,7 @@ MA_top_ports_overall_dat  %>%
         axis.text.x = element_text(angle = 45, hjust = 1),
         strip.text = element_text(size = 5),
         legend.position = "bottom")+
-  scale_x_continuous(limits= c(2010, 2025), breaks = c(2010,2014,2018,2022))+
+  scale_x_continuous(limits= c(2010, 2025), breaks = c(2010,2015,2020,2025))+
   scale_y_continuous(limits = c(0, NA))+
   
   # Define the legend title and exact color mapping
@@ -369,7 +369,7 @@ NE_top_ports_overall_dat  %>%
                                         linetype = 2))+
   scale_y_continuous(limits = c(0, 0.65)) +
   scale_x_continuous(expand = expansion(mult = c(0.1, .6)),
-                     limits= c(NA, NA), breaks = c(2012,2016,2020,2024))+
+                     limits= c(NA, NA), breaks = c(2010,2015,2020,2025))+
   theme(legend.position = "none")+
   geom_label_repel(aes(label = label),hjust=0,
                    nudge_x = 1, xlim=c(2025,2037),
@@ -408,7 +408,7 @@ MA_top_ports_overall_dat  %>%
                                         linetype = 2))+
   scale_y_continuous(limits = c(0, 0.3)) +
   scale_x_continuous(expand = expansion(mult = c(0.1, .6)),
-                     limits= c(NA, NA), breaks = c(2012,2016,2020,2024))+
+                     limits= c(NA, NA), breaks = c(2010,2015,2020,2025))+
   theme(legend.position = "none")+
   geom_label_repel(aes(label = label),hjust=0,
                    nudge_x = 1, xlim=c(2025,2037),
@@ -449,7 +449,7 @@ NE_top_ports_overall_dat  %>%
                                         linetype = 2))+
   scale_y_continuous(limits = c(0, 0.9)) +
   scale_x_continuous(expand = expansion(mult = c(0.1, .6)),
-                     limits= c(NA, NA), breaks = c(2012,2016,2020,2024))+
+                     limits= c(NA, NA), breaks = c(2010,2015,2020,2025))+
   theme(legend.position = "none")+
   geom_label_repel(aes(label = label),hjust=0,
                    nudge_x = 1, xlim=c(2025,2037),
@@ -489,7 +489,7 @@ MA_top_ports_overall_dat  %>%
                                         linetype = 2))+
   scale_y_continuous(limits = c(0, 0.35)) +
   scale_x_continuous(expand = expansion(mult = c(0.1, .6)),
-                     limits= c(NA, NA), breaks = c(2012,2016,2020,2024))+
+                     limits= c(NA, NA), breaks = c(2010,2015,2020,2025))+
   theme(legend.position = "none")+
   geom_label_repel(aes(label = label),hjust=0,
                    nudge_x = 1, xlim=c(2025,2037),
@@ -530,7 +530,7 @@ NE_top_ports_overall_dat  %>%
                                         linetype = 2))+
   scale_y_continuous(limits = c(0, 0.5)) +
   scale_x_continuous(expand = expansion(mult = c(0.1, .6)),
-                     limits= c(NA, NA), breaks = c(2012,2016,2020,2024))+
+                     limits= c(NA, NA), breaks = c(2010,2015,2020,2025))+
   theme(legend.position = "none")+
   geom_label_repel(aes(label = label),hjust=0,
                    nudge_x = 1, xlim=c(2025,2037),
@@ -568,7 +568,7 @@ MA_top_ports_overall_dat  %>%
                                         linetype = 2))+
   scale_y_continuous(limits = c(0, 0.7)) +
   scale_x_continuous(expand = expansion(mult = c(0.1, .6)),
-                     limits= c(NA, NA), breaks = c(2012,2016,2020,2024))+
+                     limits= c(NA, NA), breaks = c(2010,2015,2020,2025))+
   theme(legend.position = "none")+
   geom_label_repel(aes(label = label),hjust=0,
                    nudge_x = 1, xlim=c(2025,2037),
@@ -606,7 +606,7 @@ NE_top_ports_overall_dat  %>%
                                         linetype = 2))+
   scale_y_continuous(limits = c(0, 0.7)) +
   scale_x_continuous(expand = expansion(mult = c(0.1, .6)),
-                     limits= c(NA, NA), breaks = c(2012,2016,2020,2024))+
+                     limits= c(NA, NA), breaks = c(2010,2015,2020,2025))+
   theme(legend.position = "none")+
   geom_label_repel(aes(label = label),hjust=0,
                    nudge_x = 1, xlim=c(2025,2037),
@@ -643,7 +643,7 @@ MA_top_ports_overall_dat  %>%
                                         linetype = 2))+
   scale_y_continuous(limits = c(0, 0.3)) +
   scale_x_continuous(expand = expansion(mult = c(0.1, .6)),
-                     limits= c(NA, NA), breaks = c(2012,2016,2020,2024))+
+                     limits= c(NA, NA), breaks = c(2010,2015,2020,2025))+
   theme(legend.position = "none")+
   geom_label_repel(aes(label = label),hjust=0,
                    nudge_x = 1, xlim=c(2025,2037),
