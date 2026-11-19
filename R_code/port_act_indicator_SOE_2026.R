@@ -43,6 +43,12 @@ MA_dat <- dat[(dat$STATE_ABB=='NY' |
                 dat$STATE_ABB=='MD'| 
                 dat$STATE_ABB=='VA'), ]
 
+#fix Reedville
+
+MA_dat$place_id <- replace(MA_dat$place_id,
+                           MA_dat$place_id=="REEDVILLE_VA",
+                           "OTHER VA (includes REEDVILLE)")
+
 
 #NE states
 NE_dat <- dat[(dat$STATE_ABB=='ME' | 
