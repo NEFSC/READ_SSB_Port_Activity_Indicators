@@ -78,7 +78,7 @@ deflators<-deflators %>%
 
 
 #subset just variables we care about for now, with lobster pounds for NEFMC port sorting
-dat_simple <-dat[c("PORT_NAME","STATE_ABB", "CAL_YEAR",
+dat_simple <-dat_clean[c("PORT_NAME","STATE_ABB", "CAL_YEAR",
                   "totalvl","totallbs", 
                   "total_dealers_permitted", 
                   "com_permits",
