@@ -7,7 +7,7 @@
 * Unit: port-level information
 * Summary Group(s): port, year
 * Frequency: annual
-* Time Series: 2000-2024
+* Time Series: 2000-2025
 
 ### Point of Contact
 
@@ -33,7 +33,7 @@ N/A
 |**place\_id**|character|A combined text string with port and state associated with the permit or landing on record.|N/A|
 |**year**|character|Year (2000-2024) associated with the record.|N/A|
 |**port\_overall\_score**|numeric|The Port Overall Activity score is a relative metric that reflects the overall activity of a port in the commercial fishing industry. It includes the number of dealers buying fish, the number of vessels selling fish, total pounds and value of fish landed, and the number of dealer and commercial permits registered in that location. Each variable is normalized using a min-max scaling approach (between 0 and 1), and an overall mean is calculated for each port and year combination.|NA|
-|**port\_transaction\_score**|numeric|The Port Transaction Activity score is a relative metric that reflects the magnitude of fish sale transactions in each port from the perspective of dealers and commercial fishermen.|NA|
+|**port\_transaction\_score**|numeric|The Port Transaction Activity score is a relative metric that reflects the number of dealers buying fish and fishermen selling fish in each port|NA|
 |**port\_volume\_score**|numeric|The Port Volume Activity score is a relative metric that reflects the physical volume of landings in each port. *(Note: Fixed text duplication from transaction score)*|NA|
 |**port\_permit\_score**|numeric|The Port Permit Activity score is a relative metric that reflects the number of dealer permits and commercial fishing permits registered in each port.|NA|
 
@@ -41,7 +41,7 @@ N/A
 
 ### PCFA Creation
 
-The PCFA indicator provides a relative metric of the activity of a specific port in commercial fishing and utilizes the following data; number of dealers buying fish, the number of vessels selling fish, total pounds and value of fish landed, and the number of dealer and commercial permits registered in that location. Each column of data is normalized (across all years) using a min-max scaling approach (range = 0 – 1) and then we take the mean of each column to create a composite average score for each port by year. Note, the value of landed fish data is first adjusted using a GDP deflator to account for inflation over time (i.e., all values are adjusted to 2024 dollars). The PCFA analysis is conducted on data across the Greater Atlantic Region (Mid-Atlantic and New England states) such that scores are comparable within and between these states.
+The PCFA indicator provides a relative metric of the activity of a specific port in commercial fishing and utilizes the following data; number of dealers buying fish, the number of vessels selling fish, total pounds and value of fish landed, and the number of dealer and commercial permits registered in that location. Each column of data is normalized (across all years) using a min-max scaling approach (range = 0 – 1) and then we take the mean of each column to create a composite average score for each port by year. Note, the value of landed fish data is first adjusted using a GDP deflator to account for inflation over time (i.e., all values are adjusted to 2025 dollars). The PCFA analysis is conducted on data across the Greater Atlantic Region (Mid-Atlantic and New England states) such that scores are comparable within and between these states.
 
 ## Data Sources and Code
 
