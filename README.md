@@ -2,12 +2,12 @@
 
 ## Product Overview:
 
-\*\* The Port Commercial Fishing Activity (PCFA) Indicators are a suites of indicators used to understand relative participation rates of commercial fishing ports over time. They are composed of commercial fishing landings and permit data from 2000 through 2024 summarized to indicate port-level activity in commercial fishing.\*
+The Port Commercial Fishing Activity (PCFA) Indicators are a suites of indicators used to understand relative participation rates of commercial fishing ports over time. They are composed of commercial fishing landings and permit data from 2000 through 2024 summarized to indicate port-level activity in commercial fishing.
 
-* Unit: port-level information
-* Summary Group(s): port, year
-* Frequency: annual
-* Time Series: 2000-2025
+- Unit: port-level information
+- Summary Group(s): port, year
+- Frequency: annual
+- Time Series: 2000-2025
 
 ### Point of Contact
 
@@ -19,23 +19,23 @@ N/A
 
 ## List of Metrics
 
-* Port Overall Activity score (port\_overall\_score)
-* Port Transaction Activity score (port\_transaction\_score)
-* Port Volume Activity score (port\_volume\_score)
-* Port Permit Activity score (port\_permit\_score)
+- Port Overall Activity score (port_overall_score)
+- Port Transaction Activity score (port_transaction_score)
+- Port Volume Activity score (port_volume_score)
+- Port Permit Activity score (port_permit_score)
 
 ## Metric Descriptions
 
 |Column Name|Data Type|Description|Default / Missing|
 |-|-|-|-|
-|**PORT\_NAME**|character|Port associated with permit or landing on record.|N/A|
-|**STATE\_ABB**|character|State associated with permit or landing on record.|N/A|
-|**place\_id**|character|A combined text string with port and state associated with the permit or landing on record.|N/A|
+|**PORT_NAME**|character|Port associated with permit or landing on record.|N/A|
+|**STATE_ABB**|character|State associated with permit or landing on record.|N/A|
+|**place_id**|character|A combined text string with port and state associated with the permit or landing on record.|N/A|
 |**year**|character|Year (2000-2024) associated with the record.|N/A|
-|**port\_overall\_score**|numeric|The Port Overall Activity score is a relative metric that reflects the overall activity of a port in the commercial fishing industry. It includes the number of dealers buying fish, the number of vessels selling fish, total pounds and value of fish landed, and the number of dealer and commercial permits registered in that location. Each variable is normalized using a min-max scaling approach (between 0 and 1), and an overall mean is calculated for each port and year combination.|NA|
-|**port\_transaction\_score**|numeric|The Port Transaction Activity score is a relative metric that reflects the number of dealers buying fish and fishermen selling fish in each port|NA|
-|**port\_volume\_score**|numeric|The Port Volume Activity score is a relative metric that reflects the physical volume of landings in each port. *(Note: Fixed text duplication from transaction score)*|NA|
-|**port\_permit\_score**|numeric|The Port Permit Activity score is a relative metric that reflects the number of dealer permits and commercial fishing permits registered in each port.|NA|
+|**port_overall_score**|numeric|The Port Overall Activity score is a relative metric that reflects the overall activity of a port in the commercial fishing industry. It includes the number of dealers buying fish, the number of vessels selling fish, total pounds and value of fish landed, and the number of dealer and commercial permits registered in that location. Each variable is normalized using a min-max scaling approach (between 0 and 1), and an overall mean is calculated for each port and year combination.|NA|
+|**port_transaction_score**|numeric|The Port Transaction Activity score is a relative metric that reflects the number of dealers buying fish and fishermen selling fish in each port|NA|
+|**port_volume_score**|numeric|The Port Volume Activity score is a relative metric that reflects the physical volume of landings in each port. *(Note: Fixed text duplication from transaction score)*|NA|
+|**port_permit_score**|numeric|The Port Permit Activity score is a relative metric that reflects the number of dealer permits and commercial fishing permits registered in each port.|NA|
 
 ## Additional Methods/Decision Rules
 
@@ -47,11 +47,13 @@ The PCFA indicator provides a relative metric of the activity of a specific port
 
 ### Data Sources
 
-* CAMS\_GARFO.CFG\_PORT, CAMS\_GARFO.CAMS\_LAND, CAMS\_GARFO.CFG\_ITIS, NEFSC\_GARFO.permit\_dealer, PERFORMANCE\_MEASURES.PM\_PORT\_CORRECTIONS, PERFORMANCE\_MEASURES.PM\_PORT\_TRANSFORMATIONS, NEFSC\_GARFO.permit\_vps\_fishery\_ner, NEFSC\_GARFO.permit\_vps\_vessel, NEFSC\_GARFO.CFDRS\_AVG\_PRICE\_TST
+- CAMS_GARFO.CFG_PORT, CAMS_GARFO.CAMS_LAND, CAMS_GARFO.CFG_ITIS, NEFSC_GARFO.permit_dealer, PERFORMANCE_MEASURES.PM_PORT_CORRECTIONS, PERFORMANCE_MEASURES.PM_PORT_TRANSFORMATIONS, NEFSC_GARFO.permit_vps_fishery_ner, NEFSC_GARFO.permit_vps_vessel, NEFSC_GARFO.CFDRS_AVG_PRICE_TST
 
 ### Code
 
-Metric Creation Code File Location: https://github.com/NEFSC/READ\_SSB\_Port\_Activity\_Indicators
+Metric Creation Code File Location: https://github.com/NEFSC/READ_SSB_Port_Activity_Indicators
+
+```
 
 
 
